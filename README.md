@@ -1,6 +1,6 @@
-# Spotify Playlist Downloader
+# Spotify Playlist Downloader with Zip Archive
 
-This program allows you to download the audio tracks from a Spotify playlist and save them as MP3 files. It utilizes the Spotify Web API and yt-dlp to achieve this functionality. Follow the steps below to use the program successfully.
+This program allows you to download audio tracks from a Spotify playlist, save them as MP3 files, and create a zip archive of the downloaded songs. It utilizes the Spotify Web API and yt-dlp (YouTube-DL compatible). Follow the steps below to use the program successfully.
 
 ## Prerequisites
 
@@ -55,12 +55,14 @@ Before you begin, make sure you have the following requirements in place:
 
 4. The program will start downloading the audio tracks from the playlist and saving them as MP3 files in the `songs` directory.
 
-5. Once the download is completed, you will see the message "Download completed!".
+5. Once the download is completed, the program will create a zip archive of the downloaded songs and remove the `songs` directory.
+
+6. You will see the message "Process completed!".
 
 ## Notes
 
-- The downloaded MP3 files will be saved in the `songs` directory.
-- If you encounter any errors during the download process, the program will attempt to continue with the remaining tracks.
+- The downloaded MP3 files will be saved in the `songs` directory, and the zip archive will be named `songs.zip`.
+- If a song is already downloaded, the program will skip it and display a message.
 - Make sure to comply with Spotify's terms of use and only download content that you have the right to access.
 
 ## Disclaimer
