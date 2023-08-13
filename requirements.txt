@@ -1,0 +1,3 @@
+spotipy
+yt-dlp
+Flask
