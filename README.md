@@ -1,6 +1,6 @@
 # Spotify Playlist Downloader
 
-This program allows you to download the audio tracks from a Spotify playlist and save them as MP3 files. It utilizes the Spotify Web API and YouTube-DL to achieve this functionality. Follow the steps below to use the program successfully.
+This program allows you to download the audio tracks from a Spotify playlist and save them as MP3 files. It utilizes the Spotify Web API and yt-dlp to achieve this functionality. Follow the steps below to use the program successfully.
 
 ## Prerequisites
 
@@ -8,10 +8,10 @@ Before you begin, make sure you have the following requirements in place:
 
 - Python 3.7 or later installed on your system.
 - Spotify Developer Account: You need to create a Spotify Developer account and obtain your `CLIENT_ID` and `CLIENT_SECRET`.
-- YouTube-DL: Make sure you have YouTube-DL installed. You can install it using `pip`:
+- yt-dlp: Make sure you have yt-dlp installed. You can install it using `pip`:
 
   ```bash
-  pip install youtube-dl
+  pip install yt-dlp
   ```
 
 ## Installation
@@ -46,7 +46,7 @@ Before you begin, make sure you have the following requirements in place:
 1. Run the program:
 
    ```bash
-   python spotify_playlist_downloader.py
+   python main.py
    ```
 
 2. Open a web browser and navigate to `http://localhost:8080/` to keep the server alive.
