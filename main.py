@@ -1,4 +1,4 @@
-import os, asyncio
+import os, asyncio, shutil
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import yt_dlp
@@ -28,7 +28,10 @@ class CustomCacheHandler(CacheHandler):
         with open(cache_file, 'w') as f:
             f.write(str(token_info))
 
-            
+def is_song_already_downloaded(song_title):
+    song_filename = f'songs/{song_title}.mp3'
+    return os.path.exists(song_filename)
+    
 async def download_spotify_playlist(playlist_url):
     try:
         playlist_id = playlist_url.replace("https://open.spotify.com/playlist/", "").split("?")[0]
@@ -51,7 +54,11 @@ async def download_spotify_playlist(playlist_url):
                     song_title = song_title.replace('"', "")
             
                 search_query = f'ytsearch:"{song_title}"'
-                await download_youtube_video(search_query, song_title)
+                if not is_song_already_downloaded(song_title):
+                    await download_youtube_video(search_query, song_title)
+                else:
+                    print(f"Skipping '{song_title}' - Already downloaded")
+            
             
             except Exception as e:
                 print(f"Error: {e}")
@@ -100,9 +107,11 @@ async def main():
         os.makedirs('songs')
     
     await download_spotify_playlist(playlist_url)
-    
-    print("Download completed!")
+    print("Download completed!\nCreating zip file...")
+    shutil.make_archive('songs', 'zip', 'songs')
+    print("Zip file created and removing songs folder...")
+    shutil.rmtree('songs')      
+    print("Process completed!")
 
 if __name__ == "__main__":
     asyncio.run(main())
-                
