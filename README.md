@@ -46,7 +46,7 @@ Before you begin, make sure you have the following requirements in place:
 1. Run the program:
 
    ```bash
-   python spotify_playlist_downloader.py
+   python main.py
    ```
 
 2. Open a web browser and navigate to `http://localhost:8080/` to keep the server alive.
