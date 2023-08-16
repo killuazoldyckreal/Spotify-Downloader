@@ -37,15 +37,11 @@ This Python program allows you to download songs from a Spotify playlist and cre
    python main.py
    ```
 
-6. Access the program via a web browser at `http://localhost:8080`.
-
 ## Usage
 
-1. Access the web interface by visiting `http://localhost:8080` in your browser.
+1. Enter the Spotify playlist URL and follow the prompts.
 
-2. Enter the Spotify playlist URL and follow the prompts.
-
-3. The program will download the songs from the playlist and create a zip file.
+2. The program will download the songs from the playlist and create a zip file.
 
 ## Acknowledgments
 
