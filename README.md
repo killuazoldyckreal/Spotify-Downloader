@@ -1,70 +1,62 @@
-# Spotify Playlist Downloader with Zip Archive
+# Spotify Playlist Downloader
 
-This program allows you to download audio tracks from a Spotify playlist, save them as MP3 files, and create a zip archive of the downloaded songs. It utilizes the Spotify Web API and yt-dlp (YouTube-DL compatible). Follow the steps below to use the program successfully.
+This Python program allows you to download songs from a Spotify playlist and create a zip file containing those songs. It uses the Spotify API to fetch playlist tracks and yt-dlp to download corresponding audio files from YouTube.
 
-## Prerequisites
+## Requirements
 
-Before you begin, make sure you have the following requirements in place:
-
-- Python 3.7 or later installed on your system.
-- Spotify Developer Account: You need to create a Spotify Developer account and obtain your `CLIENT_ID` and `CLIENT_SECRET`.
-- yt-dlp: Make sure you have yt-dlp installed. You can install it using `pip`:
-
-  ```bash
-  pip install yt-dlp
-  ```
-
-## Installation
-
-1. Clone this repository to your local machine or download the files.
-
-2. Install the required Python packages:
-
-   ```bash
-   pip install spotipy flask
-   ```
+- Python 3.x
+- Required Python libraries are listed in the `requirements.txt` file.
 
 ## Setup
 
-1. Set your Spotify `CLIENT_ID` and `CLIENT_SECRET` environment variables:
+1. Clone the repository:
 
    ```bash
-   export CLIENT_ID='your_client_id'
-   export CLIENT_SECRET='your_client_secret'
+   git clone https://github.com/yourusername/spotify-downloader.git
+   cd spotify-downloader
    ```
 
-2. Create a cache directory for Spotify tokens:
+2. Install the required libraries:
 
    ```bash
-   mkdir .spotify_cache
+   pip install -r requirements.txt
    ```
 
-3. Install FFmpeg: Make sure FFmpeg is installed on your system. You can download it from the official website: [FFmpeg](https://ffmpeg.org/download.html).
+3. Obtain Spotify API credentials:
+   - Create a Spotify Developer account and obtain your `CLIENT_ID` and `CLIENT_SECRET`.
 
-## Usage
+4. Set environment variables:
+   ```bash
+   export CLIENT_ID=your_spotify_client_id
+   export CLIENT_SECRET=your_spotify_client_secret
+   ```
 
-1. Run the program:
+5. Run the program:
 
    ```bash
    python main.py
    ```
 
-2. Open a web browser and navigate to `http://localhost:8080/` to keep the server alive.
+6. Access the program via a web browser at `http://localhost:8080`.
 
-3. Enter the Spotify playlist URL when prompted.
+## Usage
 
-4. The program will start downloading the audio tracks from the playlist and saving them as MP3 files in the `songs` directory.
+1. Access the web interface by visiting `http://localhost:8080` in your browser.
 
-5. Once the download is completed, the program will create a zip archive of the downloaded songs and remove the `songs` directory.
+2. Enter the Spotify playlist URL and follow the prompts.
 
-6. You will see the message "Process completed!".
+3. The program will download the songs from the playlist and create a zip file.
 
-## Notes
+## Acknowledgments
 
-- The downloaded MP3 files will be saved in the `songs` directory, and the zip archive will be named `songs.zip`.
-- If a song is already downloaded, the program will skip it and display a message.
-- Make sure to comply with Spotify's terms of use and only download content that you have the right to access.
+This program uses the following libraries:
+- [Spotipy](https://spotipy.readthedocs.io/): Spotify Web API client.
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp): YouTube downloader with additional features.
 
 ## Disclaimer
 
-This program is intended for educational and personal use only. The developers of this program are not responsible for any unauthorized or illegal use of the downloaded content. Please ensure you have the right to access and download the content before using this program.
+This program is intended for educational and personal use only. Please respect copyright and intellectual property rights when downloading and using content from Spotify and YouTube.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
