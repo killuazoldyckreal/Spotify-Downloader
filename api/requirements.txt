@@ -10,3 +10,4 @@ mutagen
 pydub
 requests
 Pillow
+ffmpeg-python

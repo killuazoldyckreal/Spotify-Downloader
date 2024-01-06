@@ -3,7 +3,7 @@ from PIL import Image
 from io import BytesIO
 import requests
 from pydub import AudioSegment
-import os, re
+import os, re, ffmpeg
 from urllib.parse import urlparse
 
 api_key=os.environ.get('API_KEY')
@@ -131,7 +131,9 @@ class MDATA:
     def convert_to_mp3(self):
         output_file = str(self.path).rsplit('.',1)[0]+'.mp3'
         audio = AudioSegment.from_file(self.path)
-        audio.export(output_file, format="mp3")
+        pcm_data, sample_rate = audio.raw_data, audio.frame_rate
+        ffmpeg.input('pipe:0', format='s16le', ac=audio.channels, ar=sample_rate).output(output_file).run(input=pcm_data, capture_stdout=True)
+        #audio.export(output_file, format="mp3")
         self.export_mp3_with_metadata(output_file)
         os.remove(self.path)
         return output_file
