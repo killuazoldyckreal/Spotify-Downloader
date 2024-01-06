@@ -27,7 +27,7 @@ app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, secure=True, cors_allowed_origins="*")
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
-cache_path = ".spotify_cache"
+cache_path = "api/.spotify_cache"
 
 if not os.path.exists(cache_path):
     os.makedirs(cache_path)
