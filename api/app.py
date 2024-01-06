@@ -24,7 +24,7 @@ compress = Compress()
 compress.init_app(app)
 
 app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app, secure=True, cors_allowed_origins="*")
+socketio = SocketIO(app, secure=True, cors_allowed_origins="*", async_mode='gevent')
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 cache_path = "api/.spotify_cache"
