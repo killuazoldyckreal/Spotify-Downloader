@@ -5,8 +5,8 @@ from flask_socketio import SocketIO
 import logging, os, yt_dlp
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
-from chandler import CustomCacheHandler
-from helper import MDATA, is_valid_spotify_url, get_song_metadata, estimate_conversion_time
+from api.chandler import CustomCacheHandler
+from api.helper import MDATA, is_valid_spotify_url, get_song_metadata, estimate_conversion_time
 import traceback
 import glob
 from flask_cors import CORS
