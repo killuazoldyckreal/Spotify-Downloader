@@ -7,7 +7,6 @@ Flask-Cors
 Flask-Compress
 Flask-SocketIO
 mutagen
-pydub
 requests
 Pillow
 ffmpeg-python
