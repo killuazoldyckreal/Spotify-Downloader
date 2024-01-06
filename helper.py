@@ -6,7 +6,7 @@ from pydub import AudioSegment
 import os, re
 from urllib.parse import urlparse
 
-api_key="2efd0d7c78430bb566f26942a9b2a41b"
+api_key=os.environ.get('API_KEY')
 def estimate_conversion_time(input_file):
     audio = AudioSegment.from_file(input_file)
     duration_seconds = len(audio) / 1000.0
