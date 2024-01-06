@@ -31,8 +31,8 @@ cache_path = ".spotify_cache"
 
 if not os.path.exists(cache_path):
     os.makedirs(cache_path)
-client_id=os.environ["CLIENT_ID"]
-client_secret=os.environ["CLIENT_SECRET"]
+client_id="06dfb8f9bd4c4fae8f881e2f8077a0ff"
+client_secret="fbc31a2780944cbf84e9ff426afc5720"
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret, cache_handler=CustomCacheHandler(cache_path)))
 
 @app.route('/.well-known/pki-validation/<filename>')
