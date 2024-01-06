@@ -2,7 +2,7 @@ from mutagen.id3 import ID3, APIC, TIT2, TPE1, TALB, TDRC, TCON, TPE2, USLT
 from PIL import Image
 from io import BytesIO
 import requests
-from pydub import AudioSegment
+#from pydub import AudioSegment
 import os, re, ffmpeg
 from urllib.parse import urlparse
 
@@ -130,29 +130,13 @@ class MDATA:
 
     def convert_to_mp3(self):
         output_file = str(self.path).rsplit('.',1)[0]+'.mp3'
-        audio = AudioSegment.from_file(self.path)
-        pcm_data, sample_rate = audio.raw_data, audio.frame_rate
-        ffmpeg.input('pipe:0', format='s16le', ac=audio.channels, ar=sample_rate).output(output_file).run(input=pcm_data, capture_stdout=True)
+        #audio = AudioSegment.from_file(self.path)
+        #pcm_data, sample_rate = audio.raw_data, audio.frame_rate
+        ffmpeg.input(self.path).output(output_file, codec='libmp3lame').run(overwrite_output=True)
         #audio.export(output_file, format="mp3")
         self.export_mp3_with_metadata(output_file)
         os.remove(self.path)
         return output_file
-
-    def batch_convert_to_mp3(self, input_folder, output_folder):
-        if not os.path.exists(output_folder):
-            os.makedirs(output_folder)
-
-        supported_formats = [".m4a", ".aac", ".ogg", ".opus", ".webm"]
-
-        for root, _, files in os.walk(input_folder):
-            for file in files:
-                if file.lower().endswith(tuple(supported_formats)):
-                    input_path = os.path.join(root, file)
-                    output_file = os.path.splitext(file)[0] + ".mp3"
-                    output_path = os.path.join(output_folder, output_file)
-
-                    print(f"Converting {input_path} to {output_path}")
-                    self.convert_to_mp3(input_path, output_path)
 
     def show_art(self):
         for k, v in self.audio.items():
