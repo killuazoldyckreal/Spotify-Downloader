@@ -1,6 +1,7 @@
 from gevent import monkey
 monkey.patch_all()
 from flask import Flask, request, render_template, send_file, redirect, jsonify, after_this_request, send_from_directory
+from flask_socketio import SocketIO
 import logging, os
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
