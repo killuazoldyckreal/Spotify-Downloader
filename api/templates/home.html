@@ -132,13 +132,15 @@
                 return response.blob(); // Assuming the API responds with an audio file
             })
             .then(audioBlob => {
-                // Process the audio file (e.g., play it, download it, etc.)
-                const audioUrl = URL.createObjectURL(audioBlob);
-                console.log('Received audio file:', audioUrl);
+                // Create a download link
+                const downloadLink = document.createElement('a');
+                downloadLink.href = URL.createObjectURL(audioBlob);
+                downloadLink.download = 'song.mp3';
 
-                // Example: Play the audio
-                const audioElement = new Audio(audioUrl);
-                audioElement.play();
+                // Simulate a click on the download link
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
             })
             .catch(error => {
                 console.error('Error:', error.message);});
