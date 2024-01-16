@@ -1,3 +1,5 @@
+from gevent import monkey
+monkey.patch_all()
 from flask import Flask, request, render_template, send_file, redirect, jsonify, after_this_request, send_from_directory
 import logging, os
 import spotipy
@@ -21,7 +23,7 @@ compress.init_app(app)
 
 app.config['SECRET_KEY'] = 'secret!'
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
-
+socketio = SocketIO(app, secure=True, cors_allowed_origins="*")
 cache_path = "api/.spotify_cache"
 
 if not os.path.exists(cache_path):
@@ -135,6 +137,6 @@ def get_mp3(data, query):
         return filename
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    socketio.run(app, host='0.0.0.0')
     http_server = WSGIServer(('0.0.0.0'), app, handler_class=WebSocketHandler)
     http_server.serve_forever()
