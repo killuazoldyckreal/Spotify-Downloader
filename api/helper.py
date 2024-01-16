@@ -1,4 +1,4 @@
-from eyed3.id3.frames import ImageFrame
+from mutagen.id3 import ID3, APIC
 from PIL import Image
 from io import BytesIO
 import requests
@@ -65,42 +65,29 @@ class MDATA:
 
     def add_cover_art(self, audio_bytesio):
         metadata = self.metadata
-        audio_bytesio.seek(0)  # Move the cursor to the beginning of the BytesIO object
+        audio_bytesio.seek(0)
+        audiofile = ID3(fileobj=audio_bytesio)
 
-        # Save the BytesIO content to a temporary file
-        with tempfile.NamedTemporaryFile(delete=False) as temp_audio_file:
-            temp_audio_file.write(audio_bytesio.read())
-            temp_audio_file_path = temp_audio_file.name
-        print(temp_audio_file_path)
-
-        # Use eyed3.load to load the temporary audio file
-        audiofile = eyed3.load(temp_audio_file_path)
-        audiofile.tag.frame_set = []  # Clear existing frames
+        # Clear existing frames
+        audiofile.delall("APIC")
 
         if 'cover_art_url' in metadata:
             cover_url = metadata['cover_art_url']
             cover_data = requests.get(cover_url).content
 
-            # You may want to resize the image to a reasonable size
-            cover_image = Image.open(BytesIO(cover_data))
-            cover_image.thumbnail((300, 300))
-
-            # Create an ImageFrame with the cover image data
-            cover_frame = ImageFrame(
-                type=ImageFrame.FRONT_COVER,
-                mime='image/jpeg',
-                image_data=cover_image.tobytes()
+            # Add the cover art as an APIC frame
+            audiofile.add(
+                APIC(
+                    encoding=3,  # UTF-8
+                    mime='image/jpeg',
+                    type=3,  # Front Cover
+                    desc=u'Cover',
+                    data=cover_data
+                )
             )
-
-            # Add the ImageFrame to the audio file
-            audiofile.tag.frame_set.append(cover_frame)
 
         # Save the modified audio file to a new BytesIO object
         output_bytesio = BytesIO()
-        audiofile.tag.save(output_bytesio)
-
-        # Remove the temporary audio file
-        os.remove(temp_audio_file_path)
+        audiofile.save(output_bytesio)
 
         return output_bytesio
-
