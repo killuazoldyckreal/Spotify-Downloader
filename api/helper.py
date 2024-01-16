@@ -64,29 +64,16 @@ class MDATA:
 
     def add_cover_art(self, audio_bytesio):
         metadata = self.metadata
-        audio_bytesio.seek(0)
-        audiofile = ID3(fileobj=audio_bytesio)
-
-        # Clear existing frames
-        audiofile.delall("APIC")
-
+        tags = ID3(output_file)
         if 'cover_art_url' in metadata:
             cover_url = metadata['cover_art_url']
-            cover_data = requests.get(cover_url).content
-
-            # Add the cover art as an APIC frame
-            audiofile.add(
-                APIC(
-                    encoding=3,  # UTF-8
-                    mime='image/jpeg',
-                    type=3,  # Front Cover
-                    desc=u'Cover',
-                    data=cover_data
-                )
+            cover_image_data = BytesIO(requests.get(cover_url).content)
+            tags['APIC'] = APIC(
+                encoding=0,  # 0 is for utf-8
+                mime='image/jpeg',
+                type=3,  # 3 is for the front cover
+                desc=u'Cover',
+                data=cover_image_data.getvalue()
             )
-
-        # Save the modified audio file to a new BytesIO object
-        output_bytesio = BytesIO()
-        audiofile.save(output_bytesio)
-
-        return output_bytesio
+        tags.save(output_file)
+        return True
