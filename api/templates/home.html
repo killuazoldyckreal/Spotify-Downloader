@@ -100,7 +100,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            var socket = io.connect('wss://' + document.domain + ':' + location.port);
             document.getElementById("downloadForm").addEventListener("submit", function (event) {
                 event.preventDefault();
                 var urlInputValue = document.getElementById("urlInput").value;
