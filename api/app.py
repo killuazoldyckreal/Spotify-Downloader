@@ -12,10 +12,7 @@ logger = logging.getLogger("werkzeug")
 logger.setLevel(logging.ERROR)
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
-cache_path = "api/.spotify_cache"
 
-if not os.path.exists(cache_path):
-    os.makedirs(cache_path)
 client_id=os.environ.get('CLIENT_ID')
 client_secret=os.environ.get('CLIENT_SECRET')
 class CustomCacheHandler(CacheHandler):
@@ -23,16 +20,12 @@ class CustomCacheHandler(CacheHandler):
         self.cache_path = cache_path
 
     def get_cached_token(self):
-        cache_file = os.path.join(self.cache_path, 'token.txt')
-        if os.path.exists(cache_file):
-            with open(cache_file, 'r') as f:
-                token_info = f.read()
-                return eval(token_info) if token_info else None
+        cached_token = os.environ.get('MY_API_TOKEN')
+        return eval(cached_token) if cached_token else None
 
     def save_token_to_cache(self, token_info):
-        cache_file = os.path.join(self.cache_path, 'token.txt')
-        with open(cache_file, 'w') as f:
-            f.write(str(token_info))
+        os.environ['MY_API_TOKEN'] = str(token_info)
+
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret, cache_handler=CustomCacheHandler(cache_path)))
 
 @app.route('/.well-known/pki-validation/<filename>')
