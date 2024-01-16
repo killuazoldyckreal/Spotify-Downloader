@@ -2,7 +2,7 @@ from eyed3.id3.frames import ImageFrame
 from PIL import Image
 from io import BytesIO
 import requests
-import os
+import os, tempfile
 from urllib.parse import urlparse
 import eyed3
 
@@ -67,8 +67,13 @@ class MDATA:
         metadata = self.metadata
         audio_bytesio.seek(0)  # Move the cursor to the beginning of the BytesIO object
 
-        # Use eyed3.load with file_obj parameter to load audio from BytesIO
-        audiofile = eyed3.load(file_obj=audio_bytesio)
+        # Save the BytesIO content to a temporary file
+        with tempfile.NamedTemporaryFile(delete=False) as temp_audio_file:
+            temp_audio_file.write(audio_bytesio.read())
+            temp_audio_file_path = temp_audio_file.name
+
+        # Use eyed3.load to load the temporary audio file
+        audiofile = eyed3.load(temp_audio_file_path)
         audiofile.tag.frame_set = []  # Clear existing frames
 
         if 'cover_art_url' in metadata:
@@ -92,6 +97,9 @@ class MDATA:
         # Save the modified audio file to a new BytesIO object
         output_bytesio = BytesIO()
         audiofile.tag.save(output_bytesio)
+
+        # Remove the temporary audio file
+        os.remove(temp_audio_file_path)
 
         return output_bytesio
 
