@@ -115,150 +115,20 @@
 
                 const trackId = match[1];
                 const url = 'https://api.spotifydown.com/download/' + trackId;
-
-                const headers = {
-                    'Accept': '*/*',
-                    'Accept-Encoding': 'gzip, deflate, br',
-                    'Accept-Language': 'en-GB,en;q=0.8',
-                    'Cache-Control': 'no-cache',
-                    'Origin': 'https://spotifydown.com',
-                    'Pragma': 'no-cache',
-                    'Referer': 'https://spotifydown.com/',
-                    'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Brave";v="120"',
-                    'Sec-Ch-Ua-Mobile': '?0',
-                    'Sec-Ch-Ua-Platform': '"Windows"',
-                    'Sec-Fetch-Dest': 'empty',
-                    'Sec-Fetch-Mode': 'cors',
-                    'Sec-Fetch-Site': 'same-site',
-                    'Sec-Gpc': '1',
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                const requestData = {
+                    'track_id': trackId
                 };
-                fetch(url, { method: 'GET', headers: headers })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.link) {
-                            const newUrl = data.link;
-                            const newheaders = {
-                                'Accept': '*/*',
-                                'Accept-Encoding': 'gzip, deflate, br',
-                                'Accept-Language': 'en-GB,en;q=0.8',
-                                'Cache-Control': 'no-cache',
-                                'Origin': 'https://spotifydown.com',
-                                'Pragma': 'no-cache',
-                                'Referer': 'https://spotifydown.com/',
-                                'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Brave";v="120"',
-                                'Sec-Ch-Ua-Mobile': '?0',
-                                'Sec-Ch-Ua-Platform': '"Windows"',
-                                'Sec-Fetch-Dest': 'empty',
-                                'Sec-Fetch-Mode': 'cors',
-                                'Sec-Fetch-Site': 'cross-site',
-                                'Sec-Gpc': '1',
-                                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                            };
-                            fetch(newUrl, { method: 'GET', headers: newheaders })
-                                .then(response => {
-                                    if (!response.ok) {
-                                        throw new Error(`HTTP error! Status: ${response.status}`);
-                                    }
-
-                                    // Extract filename from Content-Disposition header
-                                    const contentDisposition = response.headers.get('Content-Disposition');
-                                    const filename = contentDisposition ? contentDisposition.split('filename=')[1].replace(/"/g, '') : 'output.mp3';
-
-                                    return response.blob(); // Return the blob promise
-                                })
-                                .then(blob => {
-                                    const link = document.createElement('a');
-                                    const blobURL = URL.createObjectURL(blob);
-                                    link.download = filename;
-                                    link.href = blobURL;
-                                    document.body.appendChild(link);
-                                    link.click();
-                                    document.body.removeChild(link);
-                                    console.log(`Audio file downloaded successfully as "${filename}"`);
-                                })
-                                .catch(error => console.error('Error:', error));
-
-                        } else {
-                            console.error('Error: No "link" key in the response.');
-                        }
-                    })
-                    .catch(error => console.error('Error:', error));
-                });
-            });
-            var updateInterval;
-            socket.on('error_', function (data) {
-                var errorMessage = data.error;
-                alert('Error: ' + errorMessage);  // You can use a more sophisticated alert/modal library here
-            });
-            socket.on('conversion', function (data) {
-                var eta = data.eta;
-                var progressText = document.getElementById("progressText");
-                var statusMessages = [
-                    "Converting to .mp3... Processing...",
-                    "Converting to .mp3... Almost there!",
-                    "Converting to .mp3... Hang tight!",
-                    "Converting to .mp3... Just a moment!"
-                ];
-                updateInterval = setInterval(function () {
-                    var randomMessage = statusMessages[Math.floor(Math.random() * statusMessages.length)];
-                    if (randomMessage === "Converting to .mp3... Processing...") {
-                        randomMessage = randomMessage + " ETA: " + formatTime(eta);
-                    }
-                    progressText.textContent = randomMessage;
-                }, 5000);
-                
-            });
-            socket.on('converted', function (data) {
-                if (data.progress === 100) {
-                    clearInterval(updateInterval);
-                }
-                var progressBardiv = document.getElementById("progressBar");
-                var progressBar = document.getElementById("progress");
-                var progressText = document.getElementById("progressText");
-                var urlInput = document.getElementById("urlInput");
-                progressBardiv.style.display = "none";
-                progressBar.style.width = "0%";
-                progressText.style.display = "none";
-                progressText.textContent = "0%";
-                urlInput.value = "";
-            });
-
-            socket.on('progress', function (data) {
-                if (data && data.downloaded_bytes) {
-                    var downloaded_bytes = parseDownloadedBytes(data.downloaded_bytes);
-                    var total_bytes = parseTotalBytes(data.total_bytes);
-                    var progressBardiv = document.getElementById("progressBar");
-                    var progressBar = document.getElementById("progress");
-                    var progressText = document.getElementById("progressText");
-                    var width = (downloaded_bytes / total_bytes) * 100;
-                    width = Math.round(width);
-                    progressBardiv.style.display = "flex";
-                    progressBar.style.width = width + "%";
-                    progressText.style.display = "inline";
-                    progressText.innerHTML = width + "%";
-                } else {
-                    console.error('Invalid progress data received:', data);
-                }
+            
+                // Convert data to JSON format
+                const jsonData = JSON.stringify(requestData);
+                fetch(url, { method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                    // Add any additional headers if required
+                },
+                body: jsonData})
             });
         });
-        function formatTime(seconds) {
-            seconds = Math.round(seconds)
-            if (seconds < 60) {
-                return seconds + 'sec';
-            }
-
-            var minutes = Math.floor(seconds / 60);
-            var remainingSeconds = seconds % 60;
-            return minutes + 'min ' + remainingSeconds + 'sec';
-        }
-        function parseDownloadedBytes(value) {
-            return typeof value === 'number' ? value : 0;
-        }
-
-        function parseTotalBytes(value) {
-            return typeof value === 'number' ? value : 1;
-        }
     </script>
 
 </body>
