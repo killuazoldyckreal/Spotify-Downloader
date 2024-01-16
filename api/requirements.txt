@@ -1,4 +1,4 @@
-3spotipy
+spotipy
 yt-dlp
 Flask
 gevent
