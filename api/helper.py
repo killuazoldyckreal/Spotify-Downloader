@@ -71,9 +71,10 @@ class MDATA:
         with tempfile.NamedTemporaryFile(delete=False) as temp_audio_file:
             temp_audio_file.write(audio_bytesio.read())
             temp_audio_file_path = temp_audio_file.name
+        print(temp_audio_file_path)
 
         # Use eyed3.load to load the temporary audio file
-        audiofile = eyed3.load(str(temp_audio_file_path))
+        audiofile = eyed3.load(temp_audio_file_path)
         audiofile.tag.frame_set = []  # Clear existing frames
 
         if 'cover_art_url' in metadata:
@@ -96,7 +97,7 @@ class MDATA:
 
         # Save the modified audio file to a new BytesIO object
         output_bytesio = BytesIO()
-        audiofile.tag.write(output_bytesio)
+        audiofile.tag.save(output_bytesio)
 
         # Remove the temporary audio file
         os.remove(temp_audio_file_path)
