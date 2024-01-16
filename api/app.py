@@ -42,7 +42,7 @@ def home():
     return render_template('home.html')
 
 @app.route('/download', methods=['POST'])
-def home():
+def downloading():
     if request.is_json:
         data = request.get_json()
         if 'track_id' in data:
