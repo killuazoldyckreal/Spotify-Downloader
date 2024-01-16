@@ -58,7 +58,7 @@ def get_lyrics(track_id):
         return None
 
 class MDATA:
-    def __init__(self, audiobytesio) -> None:
+    def __init__(self, audiobytesio, data) -> None:
         self.audiobytesio  = audiobytesio 
         self.metadata = data
 
