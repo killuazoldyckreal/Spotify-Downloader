@@ -73,7 +73,7 @@ class MDATA:
             temp_audio_file_path = temp_audio_file.name
 
         # Use eyed3.load to load the temporary audio file
-        audiofile = eyed3.load(temp_audio_file_path)
+        audiofile = eyed3.load(str(temp_audio_file_path))
         audiofile.tag.frame_set = []  # Clear existing frames
 
         if 'cover_art_url' in metadata:
