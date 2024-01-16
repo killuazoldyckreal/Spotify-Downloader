@@ -6,7 +6,7 @@ gevent-websocket
 Flask-Cors
 Flask-Compress
 Flask-SocketIO
-mutagen
+eyed3
 requests
 Pillow
 ffmpeg-python
