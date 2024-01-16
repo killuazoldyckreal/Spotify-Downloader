@@ -3,7 +3,7 @@ import logging, os
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from api.chandler import CustomCacheHandler
-from api.helper import MDATA, is_valid_spotify_url, get_song_metadata, estimate_conversion_time
+from api.helper import MDATA, is_valid_spotify_url
 import traceback
 from flask_cors import CORS
 import requests
@@ -41,10 +41,7 @@ def downloading():
                 track_id = data.get('track_id')
                 url = 'https://api.spotifydown.com/download/' + track_id
                 try:
-                    track_info = sp.track(track_id)
-                    song_title = track_info['name']
-                    data = get_song_metadata(track_info, sp)
-                    file_like, filename = get_mp3(data, url)
+                    file_like, filename = get_mp3(url)
                 except:
                     traceback.print_exc()
                     return jsonify({'success': False, 'error': 'Song not found or invalid URL'}), 400
@@ -54,15 +51,12 @@ def downloading():
                     results = sp.search(q=track_name, type='track', limit=1)['tracks']['items'][0]
                 except:
                     return jsonify({'success': False, 'error': 'Song not found'}), 400
-                data = get_song_metadata(results, sp)
-                url = 'https://api.spotifydown.com/download/' + data['_id']
-                song_title = data['track_name']
+                url = 'https://api.spotifydown.com/download/' + results['id']
                 file_like, filename = get_mp3(data, url)
-    
             try:
-                
                 if file_like and filename:
                     return send_file(file_like, as_attachment=False, download_name=filename, mimetype='audio/mpeg'), 200
+                return jsonify({'success': False, 'error': 'Song not found'}), 400
             except Exception as e:
                 return jsonify({'success': False, 'error': str(e)}), 400
         else:
@@ -70,7 +64,7 @@ def downloading():
     else:
         return render_template('home.html')
 
-def get_mp3(data, url):
+def get_mp3(url):
     headers = {
         'Accept': '*/*',
         'Accept-Encoding': 'gzip, deflate, br',
@@ -116,6 +110,8 @@ def get_mp3(data, url):
         filename = content_disposition.split('filename=')[1].replace('"', '') if content_disposition else 'output.mp3'
         file_like = BytesIO(response.content)
         return file_like, filename
+    else:
+        return None, None
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=443)
