@@ -71,7 +71,7 @@ def downloading():
                 audiobytes, filename = get_mp3(data, url)
             try:
                 if audiobytes and filename:
-                    file_like = BytesIO(MDATA(filename, results).add_cover_art(audiobytes))
+                    file_like = MDATA(filename, results).add_cover_art(audiobytes)
                     return send_file(file_like, as_attachment=False, download_name=filename, mimetype='audio/mpeg'), 200
                 return jsonify({'success': False, 'error': 'Song not found'}), 400
             except Exception as e:
@@ -125,7 +125,7 @@ def get_mp3(url):
     if response.ok:
         content_disposition = response.headers.get('Content-Disposition')
         filename = content_disposition.split('filename=')[1].replace('"', '') if content_disposition else 'output.mp3'
-        audiobytes = response.content
+        audiobytes = BytesIO(response.content)
         return audiobytes, filename
     else:
         return None, None
