@@ -76,4 +76,4 @@ class MDATA:
                 data=cover_image_data.getvalue()
             )
         tags.save(output_file)
-        return True
+        return output_file
