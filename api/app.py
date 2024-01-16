@@ -16,6 +16,14 @@ CORS(app, resources={r"/*": {"origins": "https://spotify-downloader-killua.verce
 
 client_id=os.environ.get('CLIENT_ID')
 client_secret=os.environ.get('CLIENT_SECRET')
+
+def stream_file(audiobytes):
+    while True:
+        chunk = audiobytes.read(1024)  # You can adjust the chunk size as needed
+        if not chunk:
+            break
+        yield chunk
+        
 class CustomCacheHandler(CacheHandler):
     def __init__(self):
         self.cache_path = None
