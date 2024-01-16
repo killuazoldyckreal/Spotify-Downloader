@@ -3,7 +3,7 @@ import logging, os
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from spotipy.cache_handler import CacheHandler
-from api.helper import is_valid_spotify_url
+from api.helper import is_valid_spotify_url, MDATA
 import traceback
 from flask_cors import CORS
 import requests
