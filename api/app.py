@@ -57,7 +57,7 @@ def downloading():
                 url = 'https://api.spotifydown.com/download/' + track_id
                 try:
                     results = sp.track(track_id)
-                    file_like, filename = get_mp3(url)
+                    audiobytes, filename = get_mp3(url)
                 except:
                     traceback.print_exc()
                     return jsonify({'success': False, 'error': 'Song not found or invalid URL'}), 400
@@ -68,10 +68,10 @@ def downloading():
                 except:
                     return jsonify({'success': False, 'error': 'Song not found'}), 400
                 url = 'https://api.spotifydown.com/download/' + results['id']
-                file_like, filename = get_mp3(data, url)
+                audiobytes, filename = get_mp3(data, url)
             try:
-                if file_like and filename:
-                    file_like = MDATA(filename, results).add_cover_art(file_like)
+                if audiobytes and filename:
+                    file_like = BytesIO(MDATA(filename, results).add_cover_art(audiobytes))
                     return send_file(file_like, as_attachment=False, download_name=filename, mimetype='audio/mpeg'), 200
                 return jsonify({'success': False, 'error': 'Song not found'}), 400
             except Exception as e:
@@ -125,8 +125,8 @@ def get_mp3(url):
     if response.ok:
         content_disposition = response.headers.get('Content-Disposition')
         filename = content_disposition.split('filename=')[1].replace('"', '') if content_disposition else 'output.mp3'
-        file_like = BytesIO(response.content)
-        return file_like, filename
+        audiobytes = response.content
+        return audiobytes, filename
     else:
         return None, None
 
