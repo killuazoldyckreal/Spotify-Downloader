@@ -84,7 +84,7 @@
 <body>
     <div id="content">
         <h1>Song Downloader</h1>
-        <form id="downloadForm" action="/" method='GET'>
+        <form id="downloadForm">
             <div id="formText">
                 <span>Paste Spotify URL or Type Song Name:</span>
             </div>
@@ -106,29 +106,84 @@
                 event.preventDefault();
                 var urlInputValue = document.getElementById("urlInput").value;
                 let filename;
-                fetch("/?urlInput=" + encodeURIComponent(urlInputValue))
-                .then(response => {
-                    if (response.status !== 200) {
-                        return response.json().then(data => {
-                            throw new Error(data.error);
-                        });
-                    }
-                    const contentDispositionHeader = response.headers.get('Content-Disposition');
-                    const filenameMatch = contentDispositionHeader.match(/filename="(.+)"/);
-                    filename = filenameMatch[1];
-                    return response.blob();  // Return the blob promise
-                })
-                .then(blob => {
-                    const link = document.createElement('a');
-                    const blobURL = URL.createObjectURL(blob);
-                    link.download = filename;
-                    link.href = blobURL;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                })
-                .catch(error => {
-                    alert(error.message);
+                const spotifyUrl = urlInput.value.trim();
+                const match = spotifyUrl.match(/\/track\/(\w+)/);
+                if (!match || match.length < 2) {
+                    console.error('Invalid Spotify URL');
+                    return;
+                }
+
+                const trackId = match[1];
+                const url = 'https://api.spotifydown.com/download/' + trackId;
+
+                const headers = {
+                    'Accept': '*/*',
+                    'Accept-Encoding': 'gzip, deflate, br',
+                    'Accept-Language': 'en-GB,en;q=0.8',
+                    'Cache-Control': 'no-cache',
+                    'Origin': 'https://spotifydown.com',
+                    'Pragma': 'no-cache',
+                    'Referer': 'https://spotifydown.com/',
+                    'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Brave";v="120"',
+                    'Sec-Ch-Ua-Mobile': '?0',
+                    'Sec-Ch-Ua-Platform': '"Windows"',
+                    'Sec-Fetch-Dest': 'empty',
+                    'Sec-Fetch-Mode': 'cors',
+                    'Sec-Fetch-Site': 'same-site',
+                    'Sec-Gpc': '1',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                };
+                fetch(url, { method: 'GET', headers: headers })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.link) {
+                            const newUrl = data.link;
+                            const newheaders = {
+                                'Accept': '*/*',
+                                'Accept-Encoding': 'gzip, deflate, br',
+                                'Accept-Language': 'en-GB,en;q=0.8',
+                                'Cache-Control': 'no-cache',
+                                'Origin': 'https://spotifydown.com',
+                                'Pragma': 'no-cache',
+                                'Referer': 'https://spotifydown.com/',
+                                'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Brave";v="120"',
+                                'Sec-Ch-Ua-Mobile': '?0',
+                                'Sec-Ch-Ua-Platform': '"Windows"',
+                                'Sec-Fetch-Dest': 'empty',
+                                'Sec-Fetch-Mode': 'cors',
+                                'Sec-Fetch-Site': 'cross-site',
+                                'Sec-Gpc': '1',
+                                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                            };
+                            fetch(newUrl, { method: 'GET', headers: newheaders })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error(`HTTP error! Status: ${response.status}`);
+                                    }
+
+                                    // Extract filename from Content-Disposition header
+                                    const contentDisposition = response.headers.get('Content-Disposition');
+                                    const filename = contentDisposition ? contentDisposition.split('filename=')[1].replace(/"/g, '') : 'output.mp3';
+
+                                    return response.blob(); // Return the blob promise
+                                })
+                                .then(blob => {
+                                    const link = document.createElement('a');
+                                    const blobURL = URL.createObjectURL(blob);
+                                    link.download = filename;
+                                    link.href = blobURL;
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                    console.log(`Audio file downloaded successfully as "${filename}"`);
+                                })
+                                .catch(error => console.error('Error:', error));
+
+                        } else {
+                            console.error('Error: No "link" key in the response.');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
                 });
             });
             var updateInterval;
