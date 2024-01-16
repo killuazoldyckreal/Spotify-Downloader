@@ -60,7 +60,7 @@ def downloading():
                     audiobytes, filename = get_mp3(url)
                 except:
                     traceback.print_exc()
-                    return jsonify({'success': False, 'error': 'Song not found or invalid URL'}), 400
+                    return jsonify({'success': False, 'error': 'Song not found or invalid URL', 'errorinfo' : traceback.format_exc()}), 400
             else:
                 track_name = data.get('name')
                 try:
