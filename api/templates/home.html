@@ -114,14 +114,14 @@
                 }
 
                 const trackId = match[1];
-                const url = 'https://api.spotifydown.com/download/' + trackId;
+                const url = 'https://spotify-downloader-killua.vercel.app/download/';
                 const requestData = {
                     'track_id': trackId
                 };
             
                 // Convert data to JSON format
                 const jsonData = JSON.stringify(requestData);
-                fetch(url, { method: 'GET',
+                fetch(url, { method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                     // Add any additional headers if required
