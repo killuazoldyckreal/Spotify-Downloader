@@ -44,7 +44,7 @@ def downloading():
                     track_info = sp.track(track_id)
                     song_title = track_info['name']
                     data = get_song_metadata(track_info, sp)
-                    path = get_mp3(data,url)
+                    audiostream = get_mp3(data,url)
                 except:
                     traceback.print_exc()
                     return jsonify({'success': False, 'error': 'Song not found or invalid URL'}), 400
@@ -57,19 +57,10 @@ def downloading():
                 data = get_song_metadata(results, sp)
                 url = 'https://api.spotifydown.com/download/' + data['_id']
                 song_title = data['track_name']
-                path = get_mp3(data,url)
+                audiostream = get_mp3(data,url)
     
             try:
-                file_handle = open(path, 'r')
-                @after_this_request
-                def remove_file(response):
-                    try:
-                        os.remove(path)
-                        file_handle.close()
-                    except Exception as error:
-                        app.logger.error("Error removing or closing downloaded file handle", error)
-                    return response
-                return send_file(path, download_name = path, as_attachment=True, mimetype='audio/mpeg'), 200
+                return send_file(audiostream, as_attachment=False, mimetype='audio/mpeg'), 200
             except Exception as e:
                 return jsonify({'success': False, 'error': str(e)}), 400
         else:
@@ -121,9 +112,7 @@ def get_mp3(data, url):
     if response.ok:
         content_disposition = response.headers.get('Content-Disposition')
         filename = content_disposition.split('filename=')[1].replace('"', '') if content_disposition else 'output.mp3'
-        with open(filename, 'wb') as f:
-            f.write(response.content)
-        return filename
+        return response.content
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=443)
