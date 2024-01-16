@@ -77,7 +77,7 @@ def downloading():
     else:
         return render_template('home.html')
 
-def get_mp3(data, query):
+def get_mp3(data, url):
     headers = {
         'Accept': '*/*',
         'Accept-Encoding': 'gzip, deflate, br',
