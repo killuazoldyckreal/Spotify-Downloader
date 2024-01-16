@@ -104,7 +104,7 @@
                 event.preventDefault();
                 var urlInputValue = document.getElementById("urlInput").value;
                 let filename;
-                const spotifyUrl = urlInput.value.trim();
+                const spotifyUrl = urlInputValue.trim();
                 const match = spotifyUrl.match(/\/track\/(\w+)/);
                 if (!match || match.length < 2) {
                     console.error('Invalid Spotify URL');
