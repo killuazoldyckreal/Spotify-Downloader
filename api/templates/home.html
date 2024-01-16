@@ -101,7 +101,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            var socket = io.connect('wss://' + document.domain + ':' + location.port);
             document.getElementById("downloadForm").addEventListener("submit", function (event) {
                 event.preventDefault();
                 var urlInputValue = document.getElementById("urlInput").value;
@@ -186,79 +185,7 @@
                     .catch(error => console.error('Error:', error));
                 });
             });
-            var updateInterval;
-            socket.on('error_', function (data) {
-                var errorMessage = data.error;
-                alert('Error: ' + errorMessage);  // You can use a more sophisticated alert/modal library here
-            });
-            socket.on('conversion', function (data) {
-                var eta = data.eta;
-                var progressText = document.getElementById("progressText");
-                var statusMessages = [
-                    "Converting to .mp3... Processing...",
-                    "Converting to .mp3... Almost there!",
-                    "Converting to .mp3... Hang tight!",
-                    "Converting to .mp3... Just a moment!"
-                ];
-                updateInterval = setInterval(function () {
-                    var randomMessage = statusMessages[Math.floor(Math.random() * statusMessages.length)];
-                    if (randomMessage === "Converting to .mp3... Processing...") {
-                        randomMessage = randomMessage + " ETA: " + formatTime(eta);
-                    }
-                    progressText.textContent = randomMessage;
-                }, 5000);
-                
-            });
-            socket.on('converted', function (data) {
-                if (data.progress === 100) {
-                    clearInterval(updateInterval);
-                }
-                var progressBardiv = document.getElementById("progressBar");
-                var progressBar = document.getElementById("progress");
-                var progressText = document.getElementById("progressText");
-                var urlInput = document.getElementById("urlInput");
-                progressBardiv.style.display = "none";
-                progressBar.style.width = "0%";
-                progressText.style.display = "none";
-                progressText.textContent = "0%";
-                urlInput.value = "";
-            });
-
-            socket.on('progress', function (data) {
-                if (data && data.downloaded_bytes) {
-                    var downloaded_bytes = parseDownloadedBytes(data.downloaded_bytes);
-                    var total_bytes = parseTotalBytes(data.total_bytes);
-                    var progressBardiv = document.getElementById("progressBar");
-                    var progressBar = document.getElementById("progress");
-                    var progressText = document.getElementById("progressText");
-                    var width = (downloaded_bytes / total_bytes) * 100;
-                    width = Math.round(width);
-                    progressBardiv.style.display = "flex";
-                    progressBar.style.width = width + "%";
-                    progressText.style.display = "inline";
-                    progressText.innerHTML = width + "%";
-                } else {
-                    console.error('Invalid progress data received:', data);
-                }
-            });
         });
-        function formatTime(seconds) {
-            seconds = Math.round(seconds)
-            if (seconds < 60) {
-                return seconds + 'sec';
-            }
-
-            var minutes = Math.floor(seconds / 60);
-            var remainingSeconds = seconds % 60;
-            return minutes + 'min ' + remainingSeconds + 'sec';
-        }
-        function parseDownloadedBytes(value) {
-            return typeof value === 'number' ? value : 0;
-        }
-
-        function parseTotalBytes(value) {
-            return typeof value === 'number' ? value : 1;
-        }
     </script>
 
 </body>
