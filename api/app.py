@@ -16,8 +16,8 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 client_id=os.environ.get('CLIENT_ID')
 client_secret=os.environ.get('CLIENT_SECRET')
 class CustomCacheHandler(CacheHandler):
-    def __init__(self, cache_path):
-        self.cache_path = cache_path
+    def __init__(self):
+        self.cache_path = None
 
     def get_cached_token(self):
         cached_token = os.environ.get('MY_API_TOKEN')
@@ -26,7 +26,7 @@ class CustomCacheHandler(CacheHandler):
     def save_token_to_cache(self, token_info):
         os.environ['MY_API_TOKEN'] = str(token_info)
 
-sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret, cache_handler=CustomCacheHandler(cache_path)))
+sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret, cache_handler=CustomCacheHandler()))
 
 @app.route('/.well-known/pki-validation/<filename>')
 def verification_file(filename):
