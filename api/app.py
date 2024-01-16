@@ -6,12 +6,12 @@ from api.chandler import CustomCacheHandler
 from api.helper import MDATA, is_valid_spotify_url, get_song_metadata, estimate_conversion_time
 import traceback
 from flask_cors import CORS
-
+import requests
 
 logger = logging.getLogger("werkzeug")
 logger.setLevel(logging.ERROR)
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 cache_path = "api/.spotify_cache"
 
 if not os.path.exists(cache_path):
@@ -36,7 +36,7 @@ def downloading():
             track_id = data.get('track_id')
             url = 'https://api.spotifydown.com/download/' + track_id
             try:
-                track_info = sp.track(_id)
+                track_info = sp.track(track_id)
                 song_title = track_info['name']
                 data = get_song_metadata(track_info, sp)
                 path = get_mp3(data,url)
@@ -46,7 +46,7 @@ def downloading():
         else:
             track_name = data.get('name')
             try:
-                results = sp.search(q=song_title, type='track', limit=1)['tracks']['items'][0]
+                results = sp.search(q=track_name, type='track', limit=1)['tracks']['items'][0]
             except:
                 return jsonify({'success': False, 'error': 'Song not found'}), 400
             data = get_song_metadata(results, sp)
