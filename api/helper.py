@@ -58,13 +58,13 @@ def get_lyrics(track_id):
         return None
 
 class MDATA:
-    def __init__(self, path, data) -> None:
-        self.path = path
+    def __init__(self, audiobytesio) -> None:
+        self.audiobytesio  = audiobytesio 
         self.metadata = data
 
-    def add_cover_art(self, audio_bytesio):
+    def add_cover_art(self):
         metadata = self.metadata
-        tags = ID3(output_file)
+        tags = ID3()
         if 'cover_art_url' in metadata:
             cover_url = metadata['cover_art_url']
             cover_image_data = BytesIO(requests.get(cover_url).content)
@@ -75,5 +75,5 @@ class MDATA:
                 desc=u'Cover',
                 data=cover_image_data.getvalue()
             )
-        tags.save(output_file)
-        return output_file
+        tags.save(self.audiobytesio)
+        return True
