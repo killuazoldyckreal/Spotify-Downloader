@@ -2,9 +2,10 @@ from eyed3.id3.frames import ImageFrame
 from PIL import Image
 from io import BytesIO
 import requests
-import os, re
+import os
 from urllib.parse import urlparse
 import eyed3
+
 api_key=os.environ.get('API_KEY')
     
 def is_valid_spotify_url(url):
