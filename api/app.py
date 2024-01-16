@@ -7,7 +7,7 @@ from api.helper import MDATA, is_valid_spotify_url, get_song_metadata, estimate_
 import traceback
 from flask_cors import CORS
 import requests
-
+from io import BytesIO
 logger = logging.getLogger("werkzeug")
 logger.setLevel(logging.ERROR)
 app = Flask(__name__)
