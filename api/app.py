@@ -71,7 +71,7 @@ def downloading():
                 file_like, filename = get_mp3(data, url)
             try:
                 if file_like and filename:
-                    file_like = MDATA(filename, results).add_cover_art(filename)
+                    file_like = MDATA(filename, results).add_cover_art(file_like)
                     return send_file(file_like, as_attachment=False, download_name=filename, mimetype='audio/mpeg'), 200
                 return jsonify({'success': False, 'error': 'Song not found'}), 400
             except Exception as e:
