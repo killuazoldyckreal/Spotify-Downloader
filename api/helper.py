@@ -96,7 +96,7 @@ class MDATA:
 
         # Save the modified audio file to a new BytesIO object
         output_bytesio = BytesIO()
-        audiofile.tag.save(output_bytesio)
+        audiofile.tag.write(output_bytesio)
 
         # Remove the temporary audio file
         os.remove(temp_audio_file_path)
