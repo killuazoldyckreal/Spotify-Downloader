@@ -30,6 +30,7 @@ def home():
 
 @app.route('/download', methods=['HEAD','GET','POST'])
 def downloading():
+    app.logger.debug('Received request to /download with method: %s', request.method)
     if request.method == 'GET':
         # Handle GET request
         return jsonify({'message': 'This is a GET request on /download'})
