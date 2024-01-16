@@ -74,7 +74,8 @@ def downloading():
             try:
                 if audiobytes and filename:
                     #MDATA(audiobytes, results).add_cover_art()
-                    return Response(stream_with_context(stream_file(audiobytes)), content_type='audio/mpeg'), 200
+                    return Response(stream_with_context(stream_file(audiobytes)), content_type='audio/mpeg',
+                direct_passthrough=True)
                 return jsonify({'success': False, 'error': 'Song not found'}), 400
             except Exception as e:
                 return jsonify({'success': False, 'error': traceback.format_exc()}), 400
