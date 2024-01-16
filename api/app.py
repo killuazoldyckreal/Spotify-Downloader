@@ -2,8 +2,7 @@ from flask import Flask, request, render_template, send_file, redirect, jsonify,
 import logging, os
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
-from api.chandler import CustomCacheHandler
-from api.helper import MDATA, is_valid_spotify_url
+from api.helper import is_valid_spotify_url
 import traceback
 from flask_cors import CORS
 import requests
