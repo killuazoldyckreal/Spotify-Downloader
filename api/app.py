@@ -64,7 +64,7 @@ def downloading():
                 audiobytes, filename = get_mp3(data, url)
             try:
                 if audiobytes and filename:
-                    MDATA(filename, results).add_cover_art(audiobytes)
+                    MDATA(audiobytes, results).add_cover_art()
                     return send_file(audiobytes, as_attachment=False, download_name=filename, mimetype='audio/mpeg'), 200
                 return jsonify({'success': False, 'error': 'Song not found'}), 400
             except Exception as e:
