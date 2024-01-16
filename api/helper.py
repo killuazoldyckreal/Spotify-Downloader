@@ -65,7 +65,10 @@ class MDATA:
 
     def add_cover_art(self, audio_bytesio):
         metadata = self.metadata
-        audiofile = eyed3.load(audio_bytesio)
+        audio_bytesio.seek(0)  # Move the cursor to the beginning of the BytesIO object
+
+        # Use eyed3.load with file_obj parameter to load audio from BytesIO
+        audiofile = eyed3.load(file_obj=audio_bytesio)
         audiofile.tag.frame_set = []  # Clear existing frames
 
         if 'cover_art_url' in metadata:
