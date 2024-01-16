@@ -4,7 +4,6 @@ from io import BytesIO
 import requests
 import os, tempfile
 from urllib.parse import urlparse
-import eyed3
 
 api_key=os.environ.get('API_KEY')
     
