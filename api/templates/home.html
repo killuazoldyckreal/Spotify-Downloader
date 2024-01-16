@@ -129,13 +129,19 @@
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
+                const contentDisposition = response.headers.get('Content-Disposition');
+                if (contentDisposition && contentDisposition.includes('filename=')) {
+                    filename = contentDisposition.split('filename=')[1].replace(/['"]/g, '');
+                } else {
+                    filename = 'song.mp3'; // Default filename if not found in header
+                }
                 return response.blob(); // Assuming the API responds with an audio file
             })
             .then(audioBlob => {
                 // Create a download link
                 const downloadLink = document.createElement('a');
                 downloadLink.href = URL.createObjectURL(audioBlob);
-                downloadLink.download = 'song.mp3';
+                downloadLink.download = filename;
 
                 // Simulate a click on the download link
                 document.body.appendChild(downloadLink);
