@@ -1,7 +1,4 @@
-from gevent import monkey
-monkey.patch_all()
 from flask import Flask, request, render_template, send_file, redirect, jsonify, after_this_request, send_from_directory
-from flask_socketio import SocketIO
 import logging, os
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
@@ -9,22 +6,12 @@ from api.chandler import CustomCacheHandler
 from api.helper import MDATA, is_valid_spotify_url, get_song_metadata, estimate_conversion_time
 import traceback
 from flask_cors import CORS
-from gevent.pywsgi import WSGIServer
-from flask_compress import Compress
-from geventwebsocket.handler import WebSocketHandler
 
 
 logger = logging.getLogger("werkzeug")
 logger.setLevel(logging.ERROR)
 app = Flask(__name__)
-CORS(app, supports_credentials=True)
-
-compress = Compress()
-compress.init_app(app)
-
-app.config['SECRET_KEY'] = 'secret!'
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
-socketio = SocketIO(app, secure=True, cors_allowed_origins="*")
+CORS(app)
 cache_path = "api/.spotify_cache"
 
 if not os.path.exists(cache_path):
@@ -83,12 +70,6 @@ def downloading():
     else:
         return render_template('home.html')
 
-def progress_hook(d):
-    if d['status'] == 'downloading':
-        socketio.emit('progress', {'downloaded_bytes': d['downloaded_bytes'], 'total_bytes': d['total_bytes']})
-    if d['status'] == 'finished':
-        socketio.emit('finished', {'status':'finished'})
-
 def get_mp3(data, query):
     headers = {
         'Accept': '*/*',
@@ -138,6 +119,4 @@ def get_mp3(data, query):
         return filename
 
 if __name__ == "__main__":
-    socketio.run(app, host='0.0.0.0')
-    http_server = WSGIServer(('0.0.0.0'), app, handler_class=WebSocketHandler)
-    http_server.serve_forever()
+    app.run(host='0.0.0.0', port=5000)
