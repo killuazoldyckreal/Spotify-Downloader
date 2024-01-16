@@ -1,4 +1,5 @@
-from flask import Flask, request, render_template, send_file, redirect, jsonify, after_this_request, send_from_directory
+from flask import Flask, request, render_template, send_file, jsonify, after_this_request, send_from_directory
+from flask import stream_with_context
 import logging, os
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
@@ -65,7 +66,7 @@ def downloading():
             try:
                 if audiobytes and filename:
                     #MDATA(audiobytes, results).add_cover_art()
-                    return send_file(audiobytes, as_attachment=False, download_name=filename, mimetype='audio/mpeg'), 200
+                    return Response(stream_with_context(stream_file(audiobytes)), content_type='audio/mpeg'), 200
                 return jsonify({'success': False, 'error': 'Song not found'}), 400
             except Exception as e:
                 return jsonify({'success': False, 'error': traceback.format_exc()}), 400
