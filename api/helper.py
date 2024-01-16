@@ -2,8 +2,7 @@ from mutagen.id3 import ID3, APIC, TIT2, TPE1, TALB, TDRC, TCON, TPE2, USLT
 from PIL import Image
 from io import BytesIO
 import requests
-#from pydub import AudioSegment
-import os, re, ffmpeg
+import os, re
 from urllib.parse import urlparse
 
 api_key=os.environ.get('API_KEY')
