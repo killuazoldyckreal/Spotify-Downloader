@@ -75,7 +75,7 @@ def downloading():
                     return send_file(file_like, as_attachment=False, download_name=filename, mimetype='audio/mpeg'), 200
                 return jsonify({'success': False, 'error': 'Song not found'}), 400
             except Exception as e:
-                return jsonify({'success': False, 'error': str(e)}), 400
+                return jsonify({'success': False, 'error': traceback.format_exc()}), 400
         else:
             return render_template('home.html')
     else:
