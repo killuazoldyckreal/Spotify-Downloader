@@ -1,10 +1,10 @@
-from mutagen.id3 import ID3, APIC, TIT2, TPE1, TALB, TDRC, TCON, TPE2, USLT
+from eyed3.id3.frames import ImageFrame
 from PIL import Image
 from io import BytesIO
 import requests
 import os, re
 from urllib.parse import urlparse
-
+import eyed3
 api_key=os.environ.get('API_KEY')
     
 def is_valid_spotify_url(url):
@@ -62,14 +62,34 @@ class MDATA:
         self.path = path
         self.metadata = data
 
-    def add_cover_art(self, output_file):
+    def add_cover_art(self, audio_bytesio):
         metadata = self.metadata
-        tags = ID3(output_file)
+        audio_bytesio.seek(0)  # Move the cursor to the beginning of the BytesIO object
+
+        audiofile = eyed3.load(audio_bytesio)
+        audiofile.tag.frame_set = []  # Clear existing frames
+
         if 'cover_art_url' in metadata:
             cover_url = metadata['cover_art_url']
-            with open("cover.jpg", "wb") as f:
-                f.write(requests.get(cover_url).content)
-            tags['APIC'] = APIC(encoding=0, mime='image/jpeg', type=3, desc=u'Cover', data=open('cover.jpg', 'rb').read())
-        tags.save(output_file)
-        return True
+            cover_data = requests.get(cover_url).content
+
+            # You may want to resize the image to a reasonable size
+            cover_image = Image.open(BytesIO(cover_data))
+            cover_image.thumbnail((300, 300))
+
+            # Create an ImageFrame with the cover image data
+            cover_frame = ImageFrame(
+                type=ImageFrame.FRONT_COVER,
+                mime='image/jpeg',
+                image_data=cover_image.tobytes()
+            )
+
+            # Add the ImageFrame to the audio file
+            audiofile.tag.frame_set.append(cover_frame)
+
+        # Save the modified audio file to a new BytesIO object
+        output_bytesio = BytesIO()
+        audiofile.tag.save(output_bytesio)
+
+        return output_bytesio
 
