@@ -79,7 +79,7 @@
             display: none;
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.3/socket.io.js"></script>
 </head>
 <body>
     <div id="content">
@@ -89,7 +89,7 @@
                 <span>Paste Spotify URL or Type Song Name:</span>
             </div>
             <input type="text" placeholder="E.g https://open.spotify.com/track/7rxjNVqyjTW7igBlVJD1aw" id="urlInput" name="urlInput">
-            <input type="submit" id="downloadButton" value="Download">
+            <input type="submit" id="downloadButton" value="Download" target="_blank">
         </form>
         <div id="progressBar">
             <div id="progressContainer">
@@ -101,6 +101,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            var socket = io.connect('wss://' + document.domain + ':' + location.port);
             document.getElementById("downloadForm").addEventListener("submit", function (event) {
                 event.preventDefault();
                 var urlInputValue = document.getElementById("urlInput").value;
@@ -132,7 +133,7 @@
                     'Sec-Gpc': '1',
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                 };
-                axios.get(url, { headers: headers })
+                fetch(url, { method: 'GET', headers: headers })
                     .then(response => response.json())
                     .then(data => {
                         if (data.link) {
@@ -154,7 +155,7 @@
                                 'Sec-Gpc': '1',
                                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                             };
-                            axios.get(newUrl, { headers: newheaders })
+                            fetch(newUrl, { method: 'GET', headers: newheaders })
                                 .then(response => {
                                     if (!response.ok) {
                                         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -183,8 +184,81 @@
                         }
                     })
                     .catch(error => console.error('Error:', error));
+                });
+            });
+            var updateInterval;
+            socket.on('error_', function (data) {
+                var errorMessage = data.error;
+                alert('Error: ' + errorMessage);  // You can use a more sophisticated alert/modal library here
+            });
+            socket.on('conversion', function (data) {
+                var eta = data.eta;
+                var progressText = document.getElementById("progressText");
+                var statusMessages = [
+                    "Converting to .mp3... Processing...",
+                    "Converting to .mp3... Almost there!",
+                    "Converting to .mp3... Hang tight!",
+                    "Converting to .mp3... Just a moment!"
+                ];
+                updateInterval = setInterval(function () {
+                    var randomMessage = statusMessages[Math.floor(Math.random() * statusMessages.length)];
+                    if (randomMessage === "Converting to .mp3... Processing...") {
+                        randomMessage = randomMessage + " ETA: " + formatTime(eta);
+                    }
+                    progressText.textContent = randomMessage;
+                }, 5000);
+                
+            });
+            socket.on('converted', function (data) {
+                if (data.progress === 100) {
+                    clearInterval(updateInterval);
+                }
+                var progressBardiv = document.getElementById("progressBar");
+                var progressBar = document.getElementById("progress");
+                var progressText = document.getElementById("progressText");
+                var urlInput = document.getElementById("urlInput");
+                progressBardiv.style.display = "none";
+                progressBar.style.width = "0%";
+                progressText.style.display = "none";
+                progressText.textContent = "0%";
+                urlInput.value = "";
+            });
+
+            socket.on('progress', function (data) {
+                if (data && data.downloaded_bytes) {
+                    var downloaded_bytes = parseDownloadedBytes(data.downloaded_bytes);
+                    var total_bytes = parseTotalBytes(data.total_bytes);
+                    var progressBardiv = document.getElementById("progressBar");
+                    var progressBar = document.getElementById("progress");
+                    var progressText = document.getElementById("progressText");
+                    var width = (downloaded_bytes / total_bytes) * 100;
+                    width = Math.round(width);
+                    progressBardiv.style.display = "flex";
+                    progressBar.style.width = width + "%";
+                    progressText.style.display = "inline";
+                    progressText.innerHTML = width + "%";
+                } else {
+                    console.error('Invalid progress data received:', data);
+                }
             });
         });
+        function formatTime(seconds) {
+            seconds = Math.round(seconds)
+            if (seconds < 60) {
+                return seconds + 'sec';
+            }
+
+            var minutes = Math.floor(seconds / 60);
+            var remainingSeconds = seconds % 60;
+            return minutes + 'min ' + remainingSeconds + 'sec';
+        }
+        function parseDownloadedBytes(value) {
+            return typeof value === 'number' ? value : 0;
+        }
+
+        function parseTotalBytes(value) {
+            return typeof value === 'number' ? value : 1;
+        }
     </script>
 
 </body>
