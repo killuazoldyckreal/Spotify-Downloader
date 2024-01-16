@@ -79,7 +79,7 @@
             display: none;
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.3/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
     <div id="content">
@@ -132,7 +132,7 @@
                     'Sec-Gpc': '1',
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                 };
-                fetch(url, { method: 'GET', headers: headers })
+                axios.get(url, { headers: headers })
                     .then(response => response.json())
                     .then(data => {
                         if (data.link) {
@@ -154,7 +154,7 @@
                                 'Sec-Gpc': '1',
                                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                             };
-                            fetch(newUrl, { method: 'GET', headers: newheaders })
+                            axios.get(newUrl, { headers: newheaders })
                                 .then(response => {
                                     if (!response.ok) {
                                         throw new Error(`HTTP error! Status: ${response.status}`);
