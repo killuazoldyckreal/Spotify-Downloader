@@ -146,3 +146,4 @@ class MDATA:
                 return
         else:
             print("No embedded cover art found.")
+
