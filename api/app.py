@@ -28,45 +28,51 @@ def verification_file(filename):
 def home():
     return render_template('home.html')
 
-@app.route('/download', methods=['POST'])
+@app.route('/download', methods=['HEAD','GET','POST'])
 def downloading():
-    if request.is_json:
-        data = request.get_json()
-        if 'track_id' in data:
-            track_id = data.get('track_id')
-            url = 'https://api.spotifydown.com/download/' + track_id
-            try:
-                track_info = sp.track(track_id)
-                song_title = track_info['name']
-                data = get_song_metadata(track_info, sp)
-                path = get_mp3(data,url)
-            except:
-                traceback.print_exc()
-                return jsonify({'success': False, 'error': 'Song not found or invalid URL'}), 400
-        else:
-            track_name = data.get('name')
-            try:
-                results = sp.search(q=track_name, type='track', limit=1)['tracks']['items'][0]
-            except:
-                return jsonify({'success': False, 'error': 'Song not found'}), 400
-            data = get_song_metadata(results, sp)
-            url = 'https://api.spotifydown.com/download/' + data['_id']
-            song_title = data['track_name']
-            path = get_mp3(data,url)
-
-        try:
-            file_handle = open(path, 'r')
-            @after_this_request
-            def remove_file(response):
+    if request.method == 'GET':
+        # Handle GET request
+        return jsonify({'message': 'This is a GET request on /download'})
+    elif request.method == 'POST':
+        if request.is_json:
+            data = request.get_json()
+            if 'track_id' in data:
+                track_id = data.get('track_id')
+                url = 'https://api.spotifydown.com/download/' + track_id
                 try:
-                    os.remove(path)
-                    file_handle.close()
-                except Exception as error:
-                    app.logger.error("Error removing or closing downloaded file handle", error)
-                return response
-            return send_file(path, download_name = path, as_attachment=True, mimetype='audio/mpeg'), 200
-        except Exception as e:
-            return jsonify({'success': False, 'error': str(e)}), 400
+                    track_info = sp.track(track_id)
+                    song_title = track_info['name']
+                    data = get_song_metadata(track_info, sp)
+                    path = get_mp3(data,url)
+                except:
+                    traceback.print_exc()
+                    return jsonify({'success': False, 'error': 'Song not found or invalid URL'}), 400
+            else:
+                track_name = data.get('name')
+                try:
+                    results = sp.search(q=track_name, type='track', limit=1)['tracks']['items'][0]
+                except:
+                    return jsonify({'success': False, 'error': 'Song not found'}), 400
+                data = get_song_metadata(results, sp)
+                url = 'https://api.spotifydown.com/download/' + data['_id']
+                song_title = data['track_name']
+                path = get_mp3(data,url)
+    
+            try:
+                file_handle = open(path, 'r')
+                @after_this_request
+                def remove_file(response):
+                    try:
+                        os.remove(path)
+                        file_handle.close()
+                    except Exception as error:
+                        app.logger.error("Error removing or closing downloaded file handle", error)
+                    return response
+                return send_file(path, download_name = path, as_attachment=True, mimetype='audio/mpeg'), 200
+            except Exception as e:
+                return jsonify({'success': False, 'error': str(e)}), 400
+        else:
+            return render_template('home.html')
     else:
         return render_template('home.html')
 
