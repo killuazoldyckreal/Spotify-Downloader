@@ -69,7 +69,8 @@ def downloading():
                 def generate():
                     try:
                         audio_stream = BytesIO(audiobytes)
-                        chunk_size = 1024
+                        audio_stream.seek(0)
+                        chunk_size = 3072
                         while True:
                             chunk = audio_stream.read(chunk_size)
                             if not chunk:
