@@ -88,8 +88,10 @@ def downloading():
                         app.logger.error("Error removing downloaded file", error)
                     return response
                 if audiobytes and filename:
-                    #MDATA(audiobytes, results).add_cover_art()
-                    return send_file(generate(), as_attachment=False, mimetype='audio/mpeg', download_name=filename), 200
+                    response = Response(generate(), mimetype='audio/mpeg')
+                    response.headers['Content-Type'] = 'application/octet-stream'
+                    response.headers['Transfer-Encoding'] = 'chunked'
+                    return response
                 return jsonify({'success': False, 'error': 'Song not found'}), 400
             except Exception as e:
                 return jsonify({'success': False, 'error': traceback.format_exc()}), 400
