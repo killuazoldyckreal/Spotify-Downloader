@@ -68,13 +68,9 @@ def downloading():
                 @stream_with_context
                 def generate():
                     try:
-                        # Your existing code to get the audio content
-                        audio_content = get_mp3(data, url)
-            
-                        # Yield chunks of the audio content
                         chunk_size = 1024  # Adjust the chunk size as needed
-                        for i in range(0, len(audio_content), chunk_size):
-                            yield audio_content[i:i + chunk_size]
+                        for i in range(0, len(audiobytes), chunk_size):
+                            yield audiobytes[i:i + chunk_size]
             
                     except Exception as e:
                         app.logger.error("Error streaming audio: %s", str(e))
@@ -82,8 +78,7 @@ def downloading():
                 @after_this_request
                 def remove_file(response):
                     try:
-                        # Remove the temporary file or handle as needed
-                        os.remove(path)
+                        pass
                     except Exception as error:
                         app.logger.error("Error removing downloaded file", error)
                     return response
