@@ -68,9 +68,8 @@ def downloading():
                 @stream_with_context
                 def generate():
                     try:
-                        audiobytes = BytesIO(
-                        chunk_size = 1024  # Adjust the chunk size as needed
-                        chunk_size = 1024  # Adjust the chunk size as needed
+                        audio_stream = BytesIO(audiobytes)
+                        chunk_size = 1024
                         while True:
                             chunk = audio_stream.read(chunk_size)
                             if not chunk:
