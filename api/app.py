@@ -16,13 +16,6 @@ CORS(app, resources={r"/*": {"origins": "https://spotify-downloader-killua.verce
 
 client_id=os.environ.get('CLIENT_ID')
 client_secret=os.environ.get('CLIENT_SECRET')
-
-def stream_file(audiobytes):
-    while True:
-        chunk = audiobytes.read(1024)  # You can adjust the chunk size as needed
-        if not chunk:
-            break
-        yield chunk
         
 class CustomCacheHandler(CacheHandler):
     def __init__(self):
@@ -72,9 +65,31 @@ def downloading():
                 url = 'https://api.spotifydown.com/download/' + results['id']
                 audiobytes, filename = get_mp3(data, url)
             try:
+                @stream_with_context
+                def generate():
+                    try:
+                        # Your existing code to get the audio content
+                        audio_content = get_mp3(data, url)
+            
+                        # Yield chunks of the audio content
+                        chunk_size = 1024  # Adjust the chunk size as needed
+                        for i in range(0, len(audio_content), chunk_size):
+                            yield audio_content[i:i + chunk_size]
+            
+                    except Exception as e:
+                        app.logger.error("Error streaming audio: %s", str(e))
+                        yield "Error streaming audio"
+                @after_this_request
+                def remove_file(response):
+                    try:
+                        # Remove the temporary file or handle as needed
+                        os.remove(path)
+                    except Exception as error:
+                        app.logger.error("Error removing downloaded file", error)
+                    return response
                 if audiobytes and filename:
                     #MDATA(audiobytes, results).add_cover_art()
-                    return Response(stream_file(audiobytes), content_type='audio/mpeg')
+                    return send_file(generate(), as_attachment=False, mimetype='audio/mpeg'), 200
                 return jsonify({'success': False, 'error': 'Song not found'}), 400
             except Exception as e:
                 return jsonify({'success': False, 'error': traceback.format_exc()}), 400
