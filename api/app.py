@@ -84,7 +84,7 @@ def downloading():
                     return response
                 if audiobytes and filename:
                     #MDATA(audiobytes, results).add_cover_art()
-                    return send_file(generate(), as_attachment=False, mimetype='audio/mpeg'), 200
+                    return send_file(generate(), as_attachment=False, mimetype='audio/mpeg', download_name=filename), 200
                 return jsonify({'success': False, 'error': 'Song not found'}), 400
             except Exception as e:
                 return jsonify({'success': False, 'error': traceback.format_exc()}), 400
