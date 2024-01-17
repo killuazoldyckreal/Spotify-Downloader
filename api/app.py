@@ -68,9 +68,14 @@ def downloading():
                 @stream_with_context
                 def generate():
                     try:
+                        audiobytes = BytesIO(
                         chunk_size = 1024  # Adjust the chunk size as needed
-                        for i in range(0, len(audiobytes), chunk_size):
-                            yield audiobytes[i:i + chunk_size]
+                        chunk_size = 1024  # Adjust the chunk size as needed
+                        while True:
+                            chunk = audio_stream.read(chunk_size)
+                            if not chunk:
+                                break
+                            yield chunk
             
                     except Exception as e:
                         app.logger.error("Error streaming audio: %s", str(e))
@@ -137,7 +142,7 @@ def get_mp3(url):
     if response.ok:
         content_disposition = response.headers.get('Content-Disposition')
         filename = content_disposition.split('filename=')[1].replace('"', '') if content_disposition else 'output.mp3'
-        audiobytes = BytesIO(response.content)
+        audiobytes = response.content
         return audiobytes, filename
     else:
         return None, None
