@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template, send_file, jsonify, after_this_request, send_from_directory
-from flask import stream_with_context, Response
+import tempfile
 import logging, os
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
@@ -65,33 +65,18 @@ def downloading():
                 url = 'https://api.spotifydown.com/download/' + results['id']
                 audiobytes, filename = get_mp3(data, url)
             try:
-                @stream_with_context
-                def generate():
-                    try:
-                        audio_stream = BytesIO(audiobytes)
-                        audio_stream.seek(0)
-                        chunk_size = 3072
-                        while True:
-                            chunk = audio_stream.read(chunk_size)
-                            if not chunk:
-                                break
-                            yield chunk
-            
-                    except Exception as e:
-                        app.logger.error("Error streaming audio: %s", str(e))
-                        yield "Error streaming audio"
+                tmp_file_path = os.path.join(tempfile.gettempdir(), filename)
+                with open(tmp_file_path, 'wb') as tmp_file:
+                    tmp_file.write(audiobytes)
                 @after_this_request
                 def remove_file(response):
                     try:
-                        pass
+                        os.remove(filename)
+                        file_handle.close()
                     except Exception as error:
-                        app.logger.error("Error removing downloaded file", error)
+                        app.logger.error("Error removing or closing downloaded file handle", error)
                     return response
-                if audiobytes and filename:
-                    response = Response(generate(), mimetype='audio/mpeg')
-                    response.headers['Content-Type'] = 'application/octet-stream'
-                    response.headers['Transfer-Encoding'] = 'chunked'
-                    return response
+                return send_file(tmp_file_path, download_name = filename, as_attachment=True, mimetype='audio/mpeg'), 200
                 return jsonify({'success': False, 'error': 'Song not found'}), 400
             except Exception as e:
                 return jsonify({'success': False, 'error': traceback.format_exc()}), 400
