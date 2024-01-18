@@ -10,3 +10,5 @@ mutagen
 requests
 Pillow
 ffmpeg-python
+click
+tabulate
