@@ -6,7 +6,7 @@ import urllib.parse
 import requests
 from tabulate import tabulate
 
-from . import ConfigurationError, APIResponseError
+from api.vercel_storage import ConfigurationError, APIResponseError
 
 
 VERCEL_API_URL = "https://blob.vercel-storage.com"
