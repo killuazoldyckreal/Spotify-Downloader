@@ -65,7 +65,7 @@ def downloading():
                 url = 'https://api.spotifydown.com/download/' + results['id']
                 audiobytes, filename = get_mp3(data, url)
             try:
-                tmp_file_path = os.path.join(tempfile.gettempdir(), filename)
+                tmp_file_path = os.path.join("/tmp", filename)
                 with open(tmp_file_path, 'wb') as tmp_file:
                     tmp_file.write(audiobytes)
                 @after_this_request
