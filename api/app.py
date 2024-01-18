@@ -68,16 +68,7 @@ def downloading():
                 tmp_file_path = os.path.join("/tmp", filename)
                 with open(tmp_file_path, 'wb') as tmp_file:
                     tmp_file.write(audiobytes)
-                @after_this_request
-                def remove_file(response):
-                    try:
-                        os.remove(filename)
-                        file_handle.close()
-                    except Exception as error:
-                        app.logger.error("Error removing or closing downloaded file handle", error)
-                    return response
                 return send_file(tmp_file_path, download_name = filename, as_attachment=True, mimetype='audio/mpeg'), 200
-                return jsonify({'success': False, 'error': 'Song not found'}), 400
             except Exception as e:
                 return jsonify({'success': False, 'error': traceback.format_exc()}), 400
         else:
