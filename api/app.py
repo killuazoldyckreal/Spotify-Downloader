@@ -9,6 +9,9 @@ import traceback
 from flask_cors import CORS
 import requests
 from io import BytesIO
+from vercel_storage import blob
+resp = blob.list()
+print(resp)
 logger = logging.getLogger("werkzeug")
 logger.setLevel(logging.ERROR)
 app = Flask(__name__)
