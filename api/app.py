@@ -76,9 +76,10 @@ def downloading():
                     content_type='audio/mpeg',
                     content_disposition=f'attachment; filename="{filename}"'
                 )
+                print("resp",resp)
                 file_info[filename] = {"url" : resp['url'], "timestamp" : datetime.utcnow()}
-                print(resp)
                 blob_url = resp['url'] #this audio file direct url
+                return jsonify({'success': False, 'error': resp}), 400
                 
             except Exception as e:
                 return jsonify({'success': False, 'error': traceback.format_exc()}), 400
