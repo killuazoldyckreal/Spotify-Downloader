@@ -90,8 +90,7 @@ def downloading():
                             else:
                                 time.sleep(300)
                     except Exception as error:
-                        app.logger.error("Error removing or closing downloaded file handle", error)
-                    return response
+                        return jsonify({'success': False, 'error': traceback.format_exc()}), 400)
                 return jsonify({'success': True, 'url': resp['url'], 'filename' : filename}), 200
             except Exception as e:
                 return jsonify({'success': False, 'error': traceback.format_exc()}), 400
