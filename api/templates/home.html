@@ -122,34 +122,38 @@
                 fetch(url, { method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
-                    // Add any additional headers if required
                 },
                 body: jsonData})
                 .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const contentDisposition = response.headers.get('Content-Disposition');
-                if (contentDisposition && contentDisposition.includes('filename=')) {
-                    filename = contentDisposition.split('filename=')[1].replace(/['"]/g, '');
-                } else {
-                    filename = 'song.mp3'; // Default filename if not found in header
-                }
-                return response.blob(); // Assuming the API responds with an audio file
-            })
-            .then(audioBlob => {
-                // Create a download link
-                const downloadLink = document.createElement('a');
-                downloadLink.href = URL.createObjectURL(audioBlob);
-                downloadLink.download = filename;
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json(); // Assuming the API responds with a JSON object
+                })
+                .then(data => {
+                    if (data.success) {
+                        const audioUrl = data.url;
+                        const contentDisposition = response.headers.get('Content-Disposition');
+                        const filename = contentDisposition && contentDisposition.includes('filename=') ?
+                            contentDisposition.split('filename=')[1].replace(/['"]/g, '') :
+                            'song.mp3'; // Default filename if not found in header
 
-                // Simulate a click on the download link
-                document.body.appendChild(downloadLink);
-                downloadLink.click();
-                document.body.removeChild(downloadLink);
-            })
-            .catch(error => {
-                console.error('Error:', error.message);});
+                        // Create a download link
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = audioUrl;
+                        downloadLink.download = filename;
+
+                        // Trigger a click on the link to start the download
+                        document.body.appendChild(downloadLink);
+                        downloadLink.click();
+                        document.body.removeChild(downloadLink);
+                    } else {
+                        console.error('Error:', data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error.message);
+                });
             });
         });
     </script>
