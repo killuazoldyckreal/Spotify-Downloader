@@ -29,6 +29,8 @@ def get_token(options: dict):
 
 
 def dump_headers(options: dict, headers: dict):
+    if options is None:
+        options = {}
     if options.get("debug", False):
         print(tabulate([(k, v) for k, v in headers.items()]))
 
@@ -44,6 +46,8 @@ def _handle_response(response: requests.Response):
 
 
 def put(pathname: str, body: bytes, options: Optional[dict] = None) -> dict:
+    if options is None:
+        options = {}
     _opts = dict(options) if options else dict()
     headers = {
         "access": "public",
@@ -80,6 +84,8 @@ def delete(
         None: A delete action is always successful if the blob url exists.
               A delete action won't throw if the blob url doesn't exists.
     """
+    if options is None:
+        options = {}
     _opts = dict(options) if options else dict()
     headers = {
         "authorization": f"Bearer {get_token(_opts)}",
@@ -125,6 +131,8 @@ def list(options: Optional[dict] = None) -> Any:
     Returns:
         Json response
     """
+    if options is None:
+        options = {}
     _opts = dict(options) if options else dict()
     headers = {
         "authorization": f"Bearer {get_token(_opts)}",
@@ -160,6 +168,8 @@ def head(url: str, options: Optional[dict] = None) -> dict:
     Returns:
         dict: with the blob's metadata. Throws an error if the blob is not found
     """
+    if options is None:
+        options = {}
     _opts = dict(options) if options else dict()
     headers = {
         "authorization": f"Bearer {get_token(_opts)}",
@@ -200,6 +210,8 @@ def copy(from_url: str, to_pathname: str, options: Optional[dict] = None) -> dic
                 the edge and browser cache. Defaults to one year. See Vercel's
                 caching documentation for more details.
     """
+    if options is None:
+        options = {}
     _opts = dict(options) if options else dict()
     headers = {
         "access": "public",
