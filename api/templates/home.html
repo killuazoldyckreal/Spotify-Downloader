@@ -133,10 +133,7 @@
                 .then(data => {
                     if (data.success) {
                         const audioUrl = data.url;
-                        const contentDisposition = data.headers.get('Content-Disposition');
-                        const filename = contentDisposition && contentDisposition.includes('filename=') ?
-                            contentDisposition.split('filename=')[1].replace(/['"]/g, '') :
-                            'song.mp3'; // Default filename if not found in header
+                        filename = data.filename; // Default filename if not found in header
 
                         // Create a download link
                         const downloadLink = document.createElement('a');
