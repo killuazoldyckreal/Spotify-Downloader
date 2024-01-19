@@ -139,6 +139,7 @@ def get_mp3(url):
         return None, None
     
 def add_cover_art(audio_file, cover_art_url):
+    audio_file.seek(0)
     tags = ID3()
     cover_image_data = BytesIO(requests.get(cover_art_url).content)
     tags['APIC'] = APIC(
@@ -149,6 +150,7 @@ def add_cover_art(audio_file, cover_art_url):
         data=cover_image_data.getvalue()
     )
     tags.save(audio_file)
+    audio_file.seek(0)
     return audio_file
 
 def delete_old_files():
