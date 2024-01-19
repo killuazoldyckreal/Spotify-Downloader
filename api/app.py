@@ -4,7 +4,7 @@ import logging, os
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from spotipy.cache_handler import CacheHandler
-from api.helper import is_valid_spotify_url, MDATA, get_song_metadata
+from api.helper import is_valid_spotify_url, get_song_metadata
 import traceback
 from flask_cors import CORS
 import requests
@@ -13,6 +13,8 @@ from io import BytesIO
 from api.vercel_storage import blob
 import time
 from datetime import datetime, timedelta
+from mutagen.id3 import ID3, APIC
+from PIL import Image
 file_info = {}
 logger = logging.getLogger("werkzeug")
 logger.setLevel(logging.ERROR)
@@ -69,15 +71,16 @@ def downloading():
                     return jsonify({'success': False, 'error': 'Song not found'}), 400
                 url = 'https://api.spotifydown.com/download/' + results['id']
                 audiobytes, filename = get_mp3(data, url)
+            cover_art_url = results['album']['images'][0]['url']
             filelike = BytesIO(audiobytes)
-            metadata = get_song_metadata(results, sp)
+            merged_file = add_cover_art(filelike, cover_art_url)
             try:
                 resp = blob.put(
                     pathname=filename,
-                    body=filelike.read()
+                    body=merged_file.read()
                 )
                 file_info[filename] = {"url" : resp['url'], "timestamp" : datetime.utcnow()}
-                return jsonify({'success': True, 'url': resp['url'], 'filename' : filename, 'metadata': metadata}), 200
+                return jsonify({'success': True, 'url': resp['url'], 'filename' : filename}), 200
 
             except Exception as e:
                 return jsonify({'success': False, 'error': traceback.format_exc()}), 400
@@ -134,6 +137,19 @@ def get_mp3(url):
         return audiobytes, filename
     else:
         return None, None
+    
+def add_cover_art(audio_file, cover_art_url):
+    tags = ID3()
+    cover_image_data = BytesIO(requests.get(cover_art_url).content)
+    tags['APIC'] = APIC(
+        encoding=0,  # 0 is for utf-8
+        mime='image/jpeg',
+        type=3,  # 3 is for the front cover
+        desc=u'Cover',
+        data=cover_image_data.getvalue()
+    )
+    tags.save(audio_file)
+    return audio_file
 
 def delete_old_files():
     global file_info
