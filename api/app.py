@@ -69,10 +69,11 @@ def downloading():
                     return jsonify({'success': False, 'error': 'Song not found'}), 400
                 url = 'https://api.spotifydown.com/download/' + results['id']
                 audiobytes, filename = get_mp3(data, url)
+            filelike = BytesIO(audiobytes)
             try:
                 resp = blob.put(
                     pathname=filename,
-                    body=audiobytes
+                    body=filelike.read()
                 )
                 print("resp",resp)
                 file_info[filename] = {"url" : resp['url'], "timestamp" : datetime.utcnow()}
