@@ -8,14 +8,13 @@ from api.helper import is_valid_spotify_url, get_song_metadata
 import traceback
 from flask_cors import CORS
 import requests
-import threading
 from io import BytesIO
 from api.vercel_storage import blob
 import time
 from datetime import datetime, timedelta
 from mutagen.id3 import ID3, APIC
 from PIL import Image
-file_info = {}
+
 logger = logging.getLogger("werkzeug")
 logger.setLevel(logging.ERROR)
 app = Flask(__name__)
@@ -79,9 +78,21 @@ def downloading():
                     pathname=filename,
                     body=merged_file.read()
                 )
-                file_info[filename] = {"url" : resp['url'], "timestamp" : datetime.utcnow()}
+                current_time = datetime.utcnow()
+                @after_this_request
+                def remove_file(response):
+                    try:
+                        while True:
+                            if current_time - datetime.utcnow() > timedelta(minutes=5):
+                                blob.delete(file_info[filename]['url'])
+                                del file_info[filename]
+                                break
+                            else:
+                                time.sleep(300)
+                    except Exception as error:
+                        app.logger.error("Error removing or closing downloaded file handle", error)
+                    return response
                 return jsonify({'success': True, 'url': resp['url'], 'filename' : filename}), 200
-
             except Exception as e:
                 return jsonify({'success': False, 'error': traceback.format_exc()}), 400
         else:
@@ -165,9 +176,6 @@ def delete_old_files():
             time.sleep(300)
         except Exception as e:
             print(f"Error deleting old files: {e}")
-
-delete_files_thread = threading.Thread(target=delete_old_files)
-delete_files_thread.start()
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=443)
