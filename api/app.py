@@ -4,7 +4,7 @@ import logging, os
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from spotipy.cache_handler import CacheHandler
-from api.helper import is_valid_spotify_url, MDATA
+from api.helper import is_valid_spotify_url, MDATA, get_song_metadata
 import traceback
 from flask_cors import CORS
 import requests
@@ -70,13 +70,14 @@ def downloading():
                 url = 'https://api.spotifydown.com/download/' + results['id']
                 audiobytes, filename = get_mp3(data, url)
             filelike = BytesIO(audiobytes)
+            metadata = get_song_metadata(results, sp)
             try:
                 resp = blob.put(
                     pathname=filename,
                     body=filelike.read()
                 )
                 file_info[filename] = {"url" : resp['url'], "timestamp" : datetime.utcnow()}
-                return redirect(resp['url'])
+                return jsonify({'success': True, 'url': resp['url'], 'filename' : filename, 'metadata': metadata}), 200
 
             except Exception as e:
                 return jsonify({'success': False, 'error': traceback.format_exc()}), 400

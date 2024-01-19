@@ -14,6 +14,25 @@ def is_valid_spotify_url(url):
     parsed_url = urlparse(url)
     return parsed_url.scheme in ['http', 'https'] and 'open.spotify.com' in parsed_url.netloc
 
+def get_song_metadata(track_info, sp):
+    track_name = track_info['name']
+    album_name = track_info['album']['name']
+    release_date = track_info['album']['release_date']
+    artists = [artist['name'] for artist in track_info['artists']]
+    album_artists = [artist['name'] for artist in track_info['album']['artists']]
+    genres = sp.artist(track_info['artists'][0]['id'])['genres']
+    cover_art_url = track_info['album']['images'][0]['url']
+    data = {
+        'track_name': track_name,
+        'album_name': album_name,
+        'release_date': release_date,
+        'artists': artists,
+        'album_artists': album_artists,
+        'genres': genres,
+        'cover_art_url': cover_art_url
+    }
+    return data
+
 def search_track(track_name, artist_name):
     base_url = "https://api.musixmatch.com/ws/1.1/"
     endpoint = "track.search"
