@@ -104,11 +104,14 @@
             setTimeout(function() {
                 document.getElementById("progressBar").style.display = "none";
                 document.getElementById("progressText").style.display = "none";
+                document.getElementById("urlInput").textContent = "";
+                document.getElementById("downloadButton").style.removeProperty("display");
             }, 3000);
         }
         document.addEventListener('DOMContentLoaded', function () {
             document.getElementById("downloadForm").addEventListener("submit", function (event) {
                 event.preventDefault();
+                document.getElementById("downloadButton").style.display = "none";
                 var urlInputValue = document.getElementById("urlInput").value;
                 let filename;
                 let dkey;
