@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, send_file, jsonify, after_this_request, redirect
+from flask import Flask, request, render_template, send_file, jsonify, after_this_request
 import tempfile
 import logging, os
 import spotipy
@@ -78,19 +78,6 @@ def downloading():
                     pathname=filename,
                     body=merged_file.read()
                 )
-                current_time = datetime.utcnow()
-                @after_this_request
-                def remove_file(response):
-                    try:
-                        while True:
-                            if current_time - datetime.utcnow() > timedelta(minutes=5):
-                                blob.delete(file_info[filename]['url'])
-                                del file_info[filename]
-                                break
-                            else:
-                                time.sleep(300)
-                    except Exception as error:
-                        return jsonify({'success': False, 'error': traceback.format_exc()}), 400
                 return jsonify({'success': True, 'url': resp['url'], 'filename' : filename}), 200
             except Exception as e:
                 return jsonify({'success': False, 'error': traceback.format_exc()}), 400
