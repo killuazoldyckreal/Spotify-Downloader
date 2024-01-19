@@ -8,6 +8,7 @@ from api.helper import is_valid_spotify_url, MDATA
 import traceback
 from flask_cors import CORS
 import requests
+import threading
 from io import BytesIO
 from api.vercel_storage import blob
 import time
