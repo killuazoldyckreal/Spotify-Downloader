@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, send_file, jsonify, after_this_request, send_from_directory
+from flask import Flask, request, render_template, send_file, jsonify, after_this_request, redirect
 import tempfile
 import logging, os
 import spotipy
@@ -75,11 +75,9 @@ def downloading():
                     pathname=filename,
                     body=filelike.read()
                 )
-                print("resp",resp)
                 file_info[filename] = {"url" : resp['url'], "timestamp" : datetime.utcnow()}
-                error = f"name {resp['pathname']} url {resp['url']}"
-                return jsonify({'success': False, 'error': error}), 400
-                
+                return redirect(resp['url'])
+
             except Exception as e:
                 return jsonify({'success': False, 'error': traceback.format_exc()}), 400
         else:
