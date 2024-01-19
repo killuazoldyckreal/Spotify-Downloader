@@ -10,8 +10,9 @@ from flask_cors import CORS
 import requests
 from io import BytesIO
 from api.vercel_storage import blob
-resp = blob.list()
-print(resp)
+import time
+from datetime import datetime, timedelta
+file_info = {}
 logger = logging.getLogger("werkzeug")
 logger.setLevel(logging.ERROR)
 app = Flask(__name__)
@@ -68,10 +69,16 @@ def downloading():
                 url = 'https://api.spotifydown.com/download/' + results['id']
                 audiobytes, filename = get_mp3(data, url)
             try:
-                tmp_file_path = os.path.join("/tmp", filename)
-                with open(tmp_file_path, 'wb') as tmp_file:
-                    tmp_file.write(audiobytes)
-                return send_file(tmp_file_path, download_name = filename, as_attachment=True, mimetype='audio/mpeg'), 200
+                resp = blob.put(
+                    pathname=filename,
+                    body=audiobytes,
+                    content_type='audio/mpeg',
+                    content_disposition=f'attachment; filename="{filename}"'
+                )
+                file_info[filename] = {"url" : resp['url'], "timestamp" : datetime.utcnow()}
+                print(resp)
+                blob_url = resp['url'] #this audio file direct url
+                
             except Exception as e:
                 return jsonify({'success': False, 'error': traceback.format_exc()}), 400
         else:
@@ -127,6 +134,22 @@ def get_mp3(url):
         return audiobytes, filename
     else:
         return None, None
+
+def delete_old_files():
+    global file_info
+    while True:
+        try:
+            current_time = datetime.utcnow()
+            files_to_delete = [filename for filename, info in file_info.items() if current_time - info["timestamp"] > timedelta(minutes=5)]
+            for filename in files_to_delete:
+                blob.delete(file_info[filename]['url'])
+                del file_info[filename]
+            time.sleep(300)
+        except Exception as e:
+            print(f"Error deleting old files: {e}")
+
+delete_files_thread = threading.Thread(target=delete_old_files)
+delete_files_thread.start()
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=443)
