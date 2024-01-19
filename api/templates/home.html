@@ -105,6 +105,7 @@
                 event.preventDefault();
                 var urlInputValue = document.getElementById("urlInput").value;
                 let filename;
+                let dkey;
                 const spotifyUrl = urlInputValue.trim();
                 const match = spotifyUrl.match(/\/track\/(\w+)/);
                 if (!match || match.length < 2) {
@@ -133,6 +134,7 @@
                     if (data.success) {
                         const audioUrl = data.url;
                         filename = data.filename;
+                        dkey = data.dkey;
                         const downloadLink = document.createElement('a');
                         downloadLink.href = audioUrl;
                         downloadLink.download = filename;
@@ -147,6 +149,15 @@
                 .catch(error => {
                     console.error('Error:', error.message);
                 });
+                const requestData2 = {
+                    'dkey': dkey
+                };
+                const jsonData2 = JSON.stringify(requestData2);
+                fetch('https://spotify-downloader-killua.vercel.app:443/deletefile', { method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: jsonData2})
             });
         });
     </script>

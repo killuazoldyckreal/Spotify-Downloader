@@ -10,11 +10,11 @@ from flask_cors import CORS
 import requests
 from io import BytesIO
 from api.vercel_storage import blob
-import time
+import time, secrets
 from datetime import datetime, timedelta
 from mutagen.id3 import ID3, APIC
 from PIL import Image
-
+blob_files = {}
 logger = logging.getLogger("werkzeug")
 logger.setLevel(logging.ERROR)
 app = Flask(__name__)
@@ -36,9 +36,17 @@ class CustomCacheHandler(CacheHandler):
 
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret, cache_handler=CustomCacheHandler()))
 
-@app.route('/.well-known/pki-validation/<filename>')
-def verification_file(filename):
-    return send_from_directory('verification', filename)
+@app.route('/deletefile', methods=['POST'])
+def deletingfile():
+    if request.method == 'POST':
+        if request.is_json:
+            data = request.get_json()
+            if 'dkey' in data and data['dkey'] in blob_files:
+                blob.delete(blob_files[data['dkey']])
+                return jsonify({'success': True}), 200
+            else:
+                return jsonify({'success': False, 'error': 'Key Mismatch or File does not exist'}), 400
+
 
 @app.route('/')
 def home():
@@ -73,12 +81,14 @@ def downloading():
             cover_art_url = results['album']['images'][0]['url']
             filelike = BytesIO(audiobytes)
             merged_file = add_cover_art(filelike, cover_art_url)
+            token = secrets.token_hex(12)
             try:
                 resp = blob.put(
                     pathname=filename,
                     body=merged_file.read()
                 )
-                return jsonify({'success': True, 'url': resp['url'], 'filename' : filename}), 200
+                blob_files[token] = resp['url']
+                return jsonify({'success': True, 'url': resp['url'], 'filename' : filename, 'dkey' : token}), 200
             except Exception as e:
                 return jsonify({'success': False, 'error': traceback.format_exc()}), 400
         else:
@@ -149,19 +159,6 @@ def add_cover_art(audio_file, cover_art_url):
     tags.save(audio_file)
     audio_file.seek(0)
     return audio_file
-
-def delete_old_files():
-    global file_info
-    while True:
-        try:
-            current_time = datetime.utcnow()
-            files_to_delete = [filename for filename, info in file_info.items() if current_time - info["timestamp"] > timedelta(minutes=5)]
-            for filename in files_to_delete:
-                blob.delete(file_info[filename]['url'])
-                del file_info[filename]
-            time.sleep(300)
-        except Exception as e:
-            print(f"Error deleting old files: {e}")
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=443)
