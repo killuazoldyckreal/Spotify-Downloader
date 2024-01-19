@@ -79,6 +79,7 @@
             display: none;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/jsmediatags@3.9.0/dist/jsmediatags.min.js"></script>
 </head>
 <body>
     <div id="content">
@@ -104,6 +105,7 @@
                 event.preventDefault();
                 var urlInputValue = document.getElementById("urlInput").value;
                 let filename;
+                let metadata;
                 const spotifyUrl = urlInputValue.trim();
                 const match = spotifyUrl.match(/\/track\/(\w+)/);
                 if (!match || match.length < 2) {
@@ -133,20 +135,44 @@
                 .then(data => {
                     if (data.success) {
                         const audioUrl = data.url;
-                        filename = data.filename; // Default filename if not found in header
+                        filename = data.filename;
+                        metadata = {
+                            title: data.metadata.track_name,
+                            artist: data.metadata.artists.join(', '), // Assuming 'artists' is an array
+                            album: data.metadata.album_name,
+                            year: new Date(data.metadata.release_date).getFullYear(),
+                            picture: data.metadata.cover_art_url ? [{ type: 3, data: data.metadata.cover_art_url }] : []
+                            // Add more metadata fields as needed
+                        };
 
-                        // Create a download link
-                        const downloadLink = document.createElement('a');
-                        downloadLink.href = audioUrl;
-                        downloadLink.download = filename;
-
-                        // Trigger a click on the link to start the download
-                        document.body.appendChild(downloadLink);
-                        downloadLink.click();
-                        document.body.removeChild(downloadLink);
+                        // Fetch the audio file
+                        return fetch(audioUrl);
                     } else {
                         console.error('Error:', data.error);
                     }
+                })
+                .then(audioResponse => audioResponse.arrayBuffer())
+                .then(arrayBuffer => {
+                    // Parse the audio file and add metadata
+                    jsmediatags.write(arrayBuffer, metadata, {
+                        onSuccess: function (tag) {
+                            // Create a Blob from the modified audio data
+                            const blob = new Blob([tag], { type: 'audio/mpeg' });
+
+                            // Create a download link
+                            const downloadLink = document.createElement('a');
+                            downloadLink.href = URL.createObjectURL(blob);
+                            downloadLink.download = filename;
+
+                            // Trigger a click on the link to start the download
+                            document.body.appendChild(downloadLink);
+                            downloadLink.click();
+                            document.body.removeChild(downloadLink);
+                        },
+                        onError: function (error) {
+                            console.error('Error writing metadata to audio file:', error);
+                        }
+                    });
                 })
                 .catch(error => {
                     console.error('Error:', error.message);
