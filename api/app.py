@@ -77,8 +77,8 @@ def downloading():
                 )
                 print("resp",resp)
                 file_info[filename] = {"url" : resp['url'], "timestamp" : datetime.utcnow()}
-                blob_url = resp['url'] #this audio file direct url
-                return jsonify({'success': False, 'error': resp}), 400
+                error = f"name {resp['pathname']} url {resp['url']}"
+                return jsonify({'success': False, 'error': error}), 400
                 
             except Exception as e:
                 return jsonify({'success': False, 'error': traceback.format_exc()}), 400
