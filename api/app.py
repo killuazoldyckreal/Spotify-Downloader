@@ -72,7 +72,7 @@ def downloading():
             try:
                 resp = blob.put(
                     pathname=filename,
-                    body=audiobytes.read()
+                    body=audiobytes
                 )
                 print("resp",resp)
                 file_info[filename] = {"url" : resp['url'], "timestamp" : datetime.utcnow()}
