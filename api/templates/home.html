@@ -100,6 +100,12 @@
     </div>
 
     <script>
+        function hideProgress() {
+            setTimeout(function() {
+                document.getElementById("progressBar").style.display = "none";
+                document.getElementById("progressText").style.display = "none";
+            }, 3000);
+        }
         document.addEventListener('DOMContentLoaded', function () {
             document.getElementById("downloadForm").addEventListener("submit", function (event) {
                 event.preventDefault();
@@ -119,6 +125,13 @@
                     'track_id': trackId
                 };
                 const jsonData = JSON.stringify(requestData);
+                var progressBardiv = document.getElementById("progressBar");
+                var progressBar = document.getElementById("progress");
+                var progressText = document.getElementById("progressText");
+                progressBardiv.style.display = "flex";
+                progressText.style.display = "inline";
+                progressText.textContent = "Sending request..."
+                progressBar.style.width = "10%";
                 fetch(url, { method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -126,8 +139,12 @@
                 body: jsonData})
                 .then(response => {
                     if (!response.ok) {
+                        progressText.textContent = "Some error occurred on server side..."
+                        progressBar.style.width = "0%";
                         throw new Error('Network response was not ok');
                     }
+                    progressText.textContent = "Fetching song..."
+                    progressBar.style.width = "35%";
                     return response.json();
                 })
                 .then(data => {
@@ -138,6 +155,8 @@
                         const downloadLink = document.createElement('a');
                         downloadLink.href = audioUrl;
                         downloadLink.download = filename;
+                        progressText.textContent = "Converting to MP3..."
+                        progressBar.style.width = "55%";
                         downloadLink.addEventListener('click', function () {
                             const requestData2 = {
                                 'dkey': dkey
@@ -160,13 +179,19 @@
                                 if (!data.success) {
                                     console.error('Error:', data.error);
                                 }
+                                progressText.textContent = "Downloading complete!"
+                                progressBar.style.width = "100%";
+                                hideProgress();
                             })
                             .catch(error => {
                                 console.error('Error:', error.message);
                             });
+
                         });
                         document.body.appendChild(downloadLink);
                         downloadLink.click();
+                        progressText.textContent = "Adding metadata..."
+                        progressBar.style.width = "85%";
                         document.body.removeChild(downloadLink);
                     }
                     else {
