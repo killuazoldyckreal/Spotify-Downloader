@@ -14,6 +14,7 @@ import time, secrets
 from datetime import datetime, timedelta
 from mutagen.id3 import ID3, APIC
 from PIL import Image
+import dropbox
 blob_files = {}
 logger = logging.getLogger("werkzeug")
 logger.setLevel(logging.ERROR)
@@ -22,7 +23,7 @@ CORS(app, resources={r"/*": {"origins": "https://spotify-downloader-killua.verce
 
 client_id=os.environ.get('CLIENT_ID')
 client_secret=os.environ.get('CLIENT_SECRET')
-        
+ACCESS_TOKEN = os.environ.get('YOUR_DROPBOX_ACCESS_TOKEN')
 class CustomCacheHandler(CacheHandler):
     def __init__(self):
         self.cache_path = None
@@ -42,7 +43,10 @@ def deletingfile():
         if request.is_json:
             data = request.get_json()
             if 'dkey' in data and data['dkey'] in blob_files:
-                blob.delete(blob_files[data['dkey']])
+                #blob.delete(blob_files[data['dkey']])
+                dbx = dropbox.Dropbox(ACCESS_TOKEN)
+                dropbox_path = blob_files[data['dkey']]
+                dbx.files_delete_v2(path=dropbox_path)
                 return jsonify({'success': True}), 200
             else:
                 return jsonify({'success': False, 'error': 'Key Mismatch or File does not exist'}), 400
@@ -83,18 +87,28 @@ def downloading():
             merged_file = add_cover_art(filelike, cover_art_url)
             token = secrets.token_hex(12)
             try:
-                resp = blob.put(
-                    pathname=filename,
-                    body=merged_file.read()
-                )
-                blob_files[token] = resp['url']
-                return jsonify({'success': True, 'url': resp['url'], 'filename' : filename, 'dkey' : token}), 200
+                #resp = blob.put(
+                #    pathname=filename,
+                #    body=merged_file.read()
+                #)
+                #blob_files[token] = resp['url']
+                dropbox_path = f"songs/{filename}"
+                file_url = upload_file(merged_file, dropbox_path)
+                blob_files[token] = dropbox_path
+                return jsonify({'success': True, 'url': file_url, 'filename' : filename, 'dkey' : token}), 200
             except Exception as e:
                 return jsonify({'success': False, 'error': traceback.format_exc()}), 400
         else:
             return render_template('home.html')
     else:
         return render_template('home.html')
+
+def upload_file(f, dropbox_path, filename):
+    dbx = dropbox.Dropbox(ACCESS_TOKEN)
+    response = dbx.files_upload(f.read(), dropbox_path, autorename=True)
+    shared_link_metadata = dbx.sharing_create_shared_link(path=response.path_display)
+    direct_link = shared_link_metadata.url.replace('?dl=0', '?dl=1')
+    return direct_link
 
 def get_mp3(url):
     headers = {
