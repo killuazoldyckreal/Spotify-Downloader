@@ -92,7 +92,7 @@ def downloading():
                 #    body=merged_file.read()
                 #)
                 #blob_files[token] = resp['url']
-                dropbox_path = f"songs/{filename}"
+                dropbox_path = f"/songs/{filename}"
                 file_url = upload_file(merged_file, dropbox_path)
                 blob_files[token] = dropbox_path
                 return jsonify({'success': True, 'url': file_url, 'filename' : filename, 'dkey' : token}), 200
