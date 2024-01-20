@@ -187,8 +187,7 @@
                         progressBardiv.style.display = "flex";
                         progressBar.style.width = "0%";
                         displayMessage(progressText, "Downloading song...", 3000);
-                        return fetch(audioUrl, { method: 'GET' })
-                        .then(audioResponse => {
+                        return fetch(audioUrl, { method: 'GET' }).then(audioResponse => {
                             if (!audioResponse.ok) {
                                 throw new Error('Audio download failed');
                             }
@@ -197,7 +196,9 @@
                             const audioTotalSize = parseInt(audioContentLength, 10) || 0;
                             const audioReader = audioResponse.body.getReader();
 
-                            return audioReader.read().then(function processAudioResult(result) {
+                            let downloadedSize = 0;
+
+                            function processAudioResult(result) {
                                 if (result.done) {
                                     progressBar.style.width = '100%';
                                     progressText.innerText = '100%';
@@ -205,22 +206,26 @@
                                         hideProgress();
                                         deletefile(dkey);
                                     }, 500);
+
                                     const downloadLink = document.createElement('a');
                                     downloadLink.href = audioUrl;
                                     downloadLink.download = filename;
                                     document.body.appendChild(downloadLink);
                                     downloadLink.click();
                                     document.body.removeChild(downloadLink);
+
                                     return;
                                 }
 
-                                const audioDownloadedSize = result.value.length || 0;
-                                const audioPercentComplete = Math.round((audioDownloadedSize / audioTotalSize) * 100);
+                                downloadedSize += result.value.length || 0;
+                                const audioPercentComplete = Math.round((downloadedSize / audioTotalSize) * 100);
                                 progressBar.style.width = audioPercentComplete + '%';
                                 progressText.innerText = audioPercentComplete + '%';
 
                                 return audioReader.read().then(processAudioResult);
-                            });
+                            }
+
+                            return audioReader.read().then(processAudioResult);
                         });
                     }
                     else {
