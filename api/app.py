@@ -108,6 +108,7 @@ def upload_file(f, dropbox_path):
     response = dbx.files_upload(f.read(), dropbox_path, autorename=True)
     shared_link_metadata = dbx.sharing_create_shared_link(path=response.path_display)
     direct_link = shared_link_metadata.url.replace('?dl=0', '?dl=1')
+    direct_link = direct_link.replace('https://www.dropbox.com', 'https://dl.dropboxusercontent.com')
     return direct_link
 
 def get_mp3(url):
