@@ -189,7 +189,7 @@
 
                             const audioContentLength = audioResponse.headers.get('Content-Length');
                             const audioTotalSize = parseInt(audioContentLength, 10) || 0;
-                            const audioReader = response.body.getReader();
+                            const audioReader = audioResponse.body.getReader();
 
                             return audioReader.read().then(function processAudioResult(result) {
                                 if (result.done) {
