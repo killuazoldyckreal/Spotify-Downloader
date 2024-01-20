@@ -110,6 +110,11 @@
                 document.getElementById("downloadButton").style.removeProperty("display");
             }, 3000);
         }
+        function displayMessage(htmlelement, message, timeout) {
+        setTimeout(function () {
+            htmlelement.innerHTML = message;
+        }, timeout);
+        }
         function deletefile(dkey) {
             const requestData2 = {
                 'dkey': dkey
@@ -142,6 +147,15 @@
                 event.preventDefault();
                 document.getElementById("downloadButton").style.display = "none";
                 var urlInputValue = document.getElementById("urlInput").value;
+                var progressBardiv = document.getElementById("progressBar");
+                var progressBar = document.getElementById("progress");
+                var progressText = document.getElementById("progressText");
+                progressText.style.display = "inline";
+                displayMessage(progressText, "Sending request...", 1000);
+                displayMessage(progressText, "Fetching song...", 2000);
+                displayMessage(progressText, "Converting to MP3...", 3000);
+                displayMessage(progressText, "Adding metadata...", 4000);
+                displayMessage(progressText, "Downloading song...", 5000);
                 let filename;
                 let dkey;
                 const spotifyUrl = urlInputValue.trim();
@@ -174,13 +188,8 @@
                         const audioUrl = data.url;
                         filename = data.filename;
                         dkey = data.dkey;
-                        var progressBardiv = document.getElementById("progressBar");
-                        var progressBar = document.getElementById("progress");
-                        var progressText = document.getElementById("progressText");
                         progressBardiv.style.display = "flex";
                         progressBar.style.width = "0%";
-                        progressText.style.display = "inline";
-                        progressText.innerHTML = "0%";
                         return fetch(audioUrl, { method: 'GET' })
                         .then(audioResponse => {
                             if (!audioResponse.ok) {
