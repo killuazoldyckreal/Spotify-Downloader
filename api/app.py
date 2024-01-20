@@ -92,7 +92,7 @@ def downloading():
                 except:
                     return jsonify({'success': False, 'error': 'Song not found'}), 400
                 url = 'https://api.spotifydown.com/download/' + results['id']
-                audiobytes, filename = get_mp3(data, url)
+                audiobytes, filename = get_mp3(url)
             cover_art_url = results['album']['images'][0]['url']
             filelike = BytesIO(audiobytes)
             merged_file = add_cover_art(filelike, cover_art_url)
