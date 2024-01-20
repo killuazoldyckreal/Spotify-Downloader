@@ -9,7 +9,7 @@ import traceback
 from flask_cors import CORS
 import requests, json
 from io import BytesIO
-from vercel_storage import blob
+#from vercel_storage import blob
 import time, secrets
 from datetime import datetime, timedelta
 from mutagen.id3 import ID3, APIC
@@ -59,8 +59,7 @@ def deletingfile():
                     
                     return jsonify({'success': True}), 200
                 except:
-                    error = traceback.format_exc()
-                    print(error)
+                    traceback.print_exc()
                     return jsonify({'success': False, 'filepath': dropbox_path, 'error': traceback.format_exc()}), 400
             else:
                 return jsonify({'success': False, 'error': 'Key Mismatch or File does not exist'}), 400
