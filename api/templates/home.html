@@ -157,6 +157,7 @@
                 const match = spotifyUrl.match(/\/track\/(\w+)/);
                 if (spotifyUrl.length < 1) {
                     alert('Invalid Input');
+                    hideProgress();
                     return;
                 }
                 let requestData;
@@ -184,7 +185,7 @@
                 .then(response => {
                     if (!response.ok) {
                         hideProgress();
-                        throw new Error('Network response was not ok');
+                        alert('Song not Found!');
                     }
                     return response.json();
                 })
