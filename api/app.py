@@ -44,18 +44,22 @@ def deletingfile():
             data = request.get_json()
             if 'dkey' in data and data['dkey'] in blob_files:
                 #blob.delete(blob_files[data['dkey']])
-                url = "https://api.dropboxapi.com/2/files/delete_v2"
-                url2 = "https://api.dropboxapi.com/2/files/permanently_delete"
-                headers = {
-                    "Authorization": f"Bearer {ACCESS_TOKEN}",
-                    "Content-Type": "application/json"
-                }
-                rdata = {
-                    "path": blob_files[data['dkey']]
-                }
-                r = requests.post(url, headers=headers, data=json.dumps(rdata))
-                r = requests.post(url2, headers=headers, data=json.dumps(rdata))
-                return jsonify({'success': True}), 200
+                try:
+                    url = "https://api.dropboxapi.com/2/files/delete_v2"
+                    url2 = "https://api.dropboxapi.com/2/files/permanently_delete"
+                    headers = {
+                        "Authorization": f"Bearer {ACCESS_TOKEN}",
+                        "Content-Type": "application/json"
+                    }
+                    dropbox_path = blob_files[data['dkey']]
+                    rdata = {
+                        "path": dropbox_path
+                    }
+                    r = requests.post(url, headers=headers, data=json.dumps(rdata))
+                    r = requests.post(url2, headers=headers, data=json.dumps(rdata))
+                    return jsonify({'success': True}), 200
+                except:
+                    return jsonify({'success': False, 'filepath': dropbox_path, 'error': traceback.format_exc()}), 400
             else:
                 return jsonify({'success': False, 'error': 'Key Mismatch or File does not exist'}), 400
 
@@ -101,9 +105,9 @@ def downloading():
                 #)
                 #blob_files[token] = resp['url']
                 dropbox_path = f"/songs/{filename}"
-                file_url = upload_file(merged_file, dropbox_path)
+                file_url, direct_url = upload_file(merged_file, dropbox_path)
                 blob_files[token] = dropbox_path
-                return jsonify({'success': True, 'url': file_url, 'filename' : filename, 'dkey' : token}), 200
+                return jsonify({'success': True, 'url': direct_url, 'filename' : filename, 'dkey' : token}), 200
             except Exception as e:
                 return jsonify({'success': False, 'error': traceback.format_exc()}), 400
         else:
@@ -116,8 +120,8 @@ def upload_file(f, dropbox_path):
     response = dbx.files_upload(f.read(), dropbox_path, autorename=True)
     shared_link_metadata = dbx.sharing_create_shared_link(path=response.path_display)
     direct_link = shared_link_metadata.url.replace('?dl=0', '?dl=1')
-    direct_link = direct_link.replace('https://www.dropbox.com', 'https://dl.dropboxusercontent.com')
-    return direct_link
+    direct_link2 = direct_link.replace('https://www.dropbox.com', 'https://dl.dropboxusercontent.com')
+    return direct_link, direct_link2
 
 def get_mp3(url):
     headers = {
