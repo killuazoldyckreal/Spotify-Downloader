@@ -4,7 +4,7 @@ import urllib.parse
 import click
 from tabulate import tabulate
 
-from api.vercel_storage import blob
+from vercel_storage import blob
 
 
 @click.group
