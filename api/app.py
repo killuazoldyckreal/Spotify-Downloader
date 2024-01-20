@@ -103,7 +103,7 @@ def downloading():
     else:
         return render_template('home.html')
 
-def upload_file(f, dropbox_path, filename):
+def upload_file(f, dropbox_path):
     dbx = dropbox.Dropbox(ACCESS_TOKEN)
     response = dbx.files_upload(f.read(), dropbox_path, autorename=True)
     shared_link_metadata = dbx.sharing_create_shared_link(path=response.path_display)
