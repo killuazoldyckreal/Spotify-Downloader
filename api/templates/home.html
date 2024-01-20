@@ -155,7 +155,7 @@
                 let dkey;
                 const spotifyUrl = urlInputValue.trim();
                 const match = spotifyUrl.match(/\/track\/(\w+)/);
-                if (match.length < 1) {
+                if (spotifyUrl.length < 1) {
                     alert('Invalid Input');
                     return;
                 }
