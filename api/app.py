@@ -7,7 +7,7 @@ from spotipy.cache_handler import CacheHandler
 from api.helper import is_valid_spotify_url, get_song_metadata
 import traceback
 from flask_cors import CORS
-import requests
+import requests, json
 from io import BytesIO
 from api.vercel_storage import blob
 import time, secrets
@@ -44,9 +44,17 @@ def deletingfile():
             data = request.get_json()
             if 'dkey' in data and data['dkey'] in blob_files:
                 #blob.delete(blob_files[data['dkey']])
-                dbx = dropbox.Dropbox(ACCESS_TOKEN)
-                dropbox_path = blob_files[data['dkey']]
-                dbx.files_delete_v2(path=dropbox_path)
+                url = "https://api.dropboxapi.com/2/files/delete_v2"
+                url2 = "https://api.dropboxapi.com/2/files/permanently_delete"
+                headers = {
+                    "Authorization": f"Bearer {ACCESS_TOKEN}",
+                    "Content-Type": "application/json"
+                }
+                rdata = {
+                    "path": blob_files[data['dkey']]
+                }
+                r = requests.post(url, headers=headers, data=json.dumps(rdata))
+                r = requests.post(url2, headers=headers, data=json.dumps(rdata))
                 return jsonify({'success': True}), 200
             else:
                 return jsonify({'success': False, 'error': 'Key Mismatch or File does not exist'}), 400
