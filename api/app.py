@@ -4,12 +4,12 @@ import os
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from spotipy.cache_handler import CacheHandler
-from api.helper import is_valid_spotify_url, get_song_metadata
+from helper import is_valid_spotify_url, get_song_metadata
 import traceback
 from flask_cors import CORS
 import requests, json
 from io import BytesIO
-from api.vercel_storage import blob
+from vercel_storage import blob
 import time, secrets
 from datetime import datetime, timedelta
 from mutagen.id3 import ID3, APIC
