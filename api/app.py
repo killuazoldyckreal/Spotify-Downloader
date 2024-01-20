@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, send_file, jsonify, after_this_request
 import tempfile
-import logging, os
+import os
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from spotipy.cache_handler import CacheHandler
@@ -16,8 +16,6 @@ from mutagen.id3 import ID3, APIC
 from PIL import Image
 import dropbox
 blob_files = {}
-logger = logging.getLogger("werkzeug")
-logger.setLevel(logging.ERROR)
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "https://spotify-downloader-killua.vercel.app"}})
 
