@@ -189,8 +189,9 @@
 
                             const audioContentLength = audioResponse.headers.get('Content-Length');
                             const audioTotalSize = parseInt(audioContentLength, 10) || 0;
+                            const audioReader = response.body.getReader();
 
-                            audioResponse.body.getReader().read().then(function processAudioResult(result) {
+                            return audioReader.read().then(function processAudioResult(result) {
                                 if (result.done) {
                                     progressBar.style.width = '100%';
                                     progressText.innerText = '100%';
@@ -206,7 +207,7 @@
                                 progressBar.style.width = audioPercentComplete + '%';
                                 progressText.innerText = audioPercentComplete + '%';
 
-                                return audioResponse.body.getReader().read().then(processAudioResult);
+                                return audioReader.read().then(processAudioResult);
                             });
                         });
                     }
