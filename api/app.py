@@ -18,7 +18,6 @@ import dropbox
 blob_files = {}
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
-
 client_id=os.environ.get('CLIENT_ID')
 client_secret=os.environ.get('CLIENT_SECRET')
 ACCESS_TOKEN = os.environ.get('DROPBOX_ACCESS_TOKEN')
@@ -50,7 +49,6 @@ def deletingfile():
                         "Content-Type": "application/json"
                     }
                     dropbox_path = blob_files[data['dkey']]
-                    print("dropboxpath", dropbox_path)
                     rdata = {
                         "path": dropbox_path
                     }
@@ -107,7 +105,6 @@ def downloading():
                 #blob_files[token] = resp['url']
                 dropbox_path = f"/songs/{filename}"
                 file_url, direct_url = upload_file(merged_file, dropbox_path)
-                print(direct_url)
                 blob_files[token] = dropbox_path
                 return jsonify({'success': True, 'url': direct_url, 'filename' : filename, 'dkey' : token}), 200
             except Exception as e:
@@ -121,7 +118,7 @@ def upload_file(f, dropbox_path):
     dbx = dropbox.Dropbox(ACCESS_TOKEN)
     response = dbx.files_upload(f.read(), dropbox_path, autorename=True)
     shared_link_metadata = dbx.sharing_create_shared_link(path=response.path_display)
-    direct_link = shared_link_metadata.url.replace('?dl=0', '?dl=1')
+    direct_link = shared_link_metadata.url.replace('&dl=0', '&dl=1')
     direct_link2 = direct_link.replace('https://www.dropbox.com', 'https://dl.dropboxusercontent.com')
     return direct_link, direct_link2
 
