@@ -106,7 +106,7 @@
                 document.getElementById("progressText").style.display = "none";
                 document.getElementById("progress").style.width = "0%";
                 document.getElementById("progressText").innerHTML = "0%";
-                document.getElementById("urlInput").textContent = "";
+                document.getElementById("urlInput").value = "";
                 document.getElementById("downloadButton").style.removeProperty("display");
             }, 3000);
         }
@@ -225,7 +225,7 @@
                                 return audioReader.read().then(processAudioResult);
                             }
 
-                            return audioReader.read().then(processAudioResult);
+                            return processAudioResult(audioReader.read());
                         });
                     }
                     else {
