@@ -23,7 +23,7 @@ CORS(app, resources={r"/*": {"origins": "https://spotify-downloader-killua.verce
 
 client_id=os.environ.get('CLIENT_ID')
 client_secret=os.environ.get('CLIENT_SECRET')
-ACCESS_TOKEN = os.environ.get('YOUR_DROPBOX_ACCESS_TOKEN')
+ACCESS_TOKEN = os.environ.get('DROPBOX_ACCESS_TOKEN')
 class CustomCacheHandler(CacheHandler):
     def __init__(self):
         self.cache_path = None
