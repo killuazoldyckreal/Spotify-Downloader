@@ -151,11 +151,6 @@
                 var progressBar = document.getElementById("progress");
                 var progressText = document.getElementById("progressText");
                 progressText.style.display = "inline";
-                displayMessage(progressText, "Sending request...", 1000);
-                displayMessage(progressText, "Fetching song...", 2000);
-                displayMessage(progressText, "Converting to MP3...", 3000);
-                displayMessage(progressText, "Adding metadata...", 4000);
-                displayMessage(progressText, "Downloading song...", 5000);
                 let filename;
                 let dkey;
                 const spotifyUrl = urlInputValue.trim();
@@ -164,13 +159,14 @@
                     console.error('Invalid Spotify URL');
                     return;
                 }
-
+                displayMessage(progressText, "Preparing request...", 1000);
                 const trackId = match[1];
                 const url = 'https://spotify-downloader-killua.vercel.app:443/download';
                 const requestData = {
                     'track_id': trackId
                 };
                 const jsonData = JSON.stringify(requestData);
+                displayMessage(progressText, "Fetching song...", 2000);
                 fetch(url, { method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -190,6 +186,7 @@
                         dkey = data.dkey;
                         progressBardiv.style.display = "flex";
                         progressBar.style.width = "0%";
+                        displayMessage(progressText, "Downloading song...", 3000);
                         return fetch(audioUrl, { method: 'GET' })
                         .then(audioResponse => {
                             if (!audioResponse.ok) {
