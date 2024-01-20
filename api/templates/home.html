@@ -104,9 +104,38 @@
             setTimeout(function() {
                 document.getElementById("progressBar").style.display = "none";
                 document.getElementById("progressText").style.display = "none";
+                document.getElementById("progress").style.width = "0%";
+                document.getElementById("progressText").innerHTML = "0%";
                 document.getElementById("urlInput").textContent = "";
                 document.getElementById("downloadButton").style.removeProperty("display");
             }, 3000);
+        }
+        function deletefile(dkey) {
+            const requestData2 = {
+                'dkey': dkey
+            };
+            const jsonData2 = JSON.stringify(requestData2);
+            fetch('https://spotify-downloader-killua.vercel.app:443/deletefile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: jsonData2
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data.success) {
+                    console.error('Error:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error.message);
+            });
         }
         document.addEventListener('DOMContentLoaded', function () {
             document.getElementById("downloadForm").addEventListener("submit", function (event) {
@@ -128,13 +157,6 @@
                     'track_id': trackId
                 };
                 const jsonData = JSON.stringify(requestData);
-                var progressBardiv = document.getElementById("progressBar");
-                var progressBar = document.getElementById("progress");
-                var progressText = document.getElementById("progressText");
-                progressBardiv.style.display = "flex";
-                progressText.style.display = "inline";
-                progressText.textContent = "Sending request..."
-                progressBar.style.width = "10%";
                 fetch(url, { method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -142,12 +164,9 @@
                 body: jsonData})
                 .then(response => {
                     if (!response.ok) {
-                        progressText.textContent = "Some error occurred on server side..."
-                        progressBar.style.width = "0%";
+                        hideProgress();
                         throw new Error('Network response was not ok');
                     }
-                    progressText.textContent = "Fetching song..."
-                    progressBar.style.width = "35%";
                     return response.json();
                 })
                 .then(data => {
@@ -155,47 +174,41 @@
                         const audioUrl = data.url;
                         filename = data.filename;
                         dkey = data.dkey;
-                        const downloadLink = document.createElement('a');
-                        downloadLink.href = audioUrl;
-                        downloadLink.download = filename;
-                        progressText.textContent = "Converting to MP3..."
-                        progressBar.style.width = "55%";
-                        downloadLink.addEventListener('click', function () {
-                            const requestData2 = {
-                                'dkey': dkey
-                            };
-                            const jsonData2 = JSON.stringify(requestData2);
-                            fetch('https://spotify-downloader-killua.vercel.app:443/deletefile', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: jsonData2
-                            })
-                            .then(response => {
-                                if (!response.ok) {
-                                    throw new Error('Network response was not ok');
-                                }
-                                return response.json();
-                            })
-                            .then(data => {
-                                if (!data.success) {
-                                    console.error('Error:', data.error);
-                                }
-                                progressText.textContent = "Downloading complete!"
-                                progressBar.style.width = "100%";
-                                hideProgress();
-                            })
-                            .catch(error => {
-                                console.error('Error:', error.message);
-                            });
+                        var progressBardiv = document.getElementById("progressBar");
+                        var progressBar = document.getElementById("progress");
+                        var progressText = document.getElementById("progressText");
+                        progressBardiv.style.display = "flex";
+                        progressBar.style.width = "0%";
+                        progressText.style.display = "inline";
+                        progressText.innerHTML = "0%";
+                        return fetch(audioUrl, { method: 'GET' })
+                        .then(audioResponse => {
+                            if (!audioResponse.ok) {
+                                throw new Error('Audio download failed');
+                            }
 
+                            const audioContentLength = audioResponse.headers.get('Content-Length');
+                            const audioTotalSize = parseInt(audioContentLength, 10) || 0;
+
+                            audioResponse.body.getReader().read().then(function processAudioResult(result) {
+                                if (result.done) {
+                                    progressBar.style.width = '100%';
+                                    progressText.innerText = '100%';
+                                    setTimeout(function () {
+                                        hideProgress();
+                                        deletefile(dkey);
+                                    }, 500);
+                                    return;
+                                }
+
+                                const audioDownloadedSize = result.value.length || 0;
+                                const audioPercentComplete = Math.round((audioDownloadedSize / audioTotalSize) * 100);
+                                progressBar.style.width = audioPercentComplete + '%';
+                                progressText.innerText = audioPercentComplete + '%';
+
+                                return audioResponse.body.getReader().read().then(processAudioResult);
+                            });
                         });
-                        document.body.appendChild(downloadLink);
-                        downloadLink.click();
-                        progressText.textContent = "Adding metadata..."
-                        progressBar.style.width = "85%";
-                        document.body.removeChild(downloadLink);
                     }
                     else {
                         console.error('Error:', data.error);
