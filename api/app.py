@@ -50,13 +50,17 @@ def deletingfile():
                         "Content-Type": "application/json"
                     }
                     dropbox_path = blob_files[data['dkey']]
+                    print("dropboxpath", dropbox_path)
                     rdata = {
                         "path": dropbox_path
                     }
                     r = requests.post(url, headers=headers, data=json.dumps(rdata))
                     r = requests.post(url2, headers=headers, data=json.dumps(rdata))
+                    
                     return jsonify({'success': True}), 200
                 except:
+                    error = traceback.format_exc()
+                    print(error)
                     return jsonify({'success': False, 'filepath': dropbox_path, 'error': traceback.format_exc()}), 400
             else:
                 return jsonify({'success': False, 'error': 'Key Mismatch or File does not exist'}), 400
@@ -104,6 +108,7 @@ def downloading():
                 #blob_files[token] = resp['url']
                 dropbox_path = f"/songs/{filename}"
                 file_url, direct_url = upload_file(merged_file, dropbox_path)
+                print(direct_url)
                 blob_files[token] = dropbox_path
                 return jsonify({'success': True, 'url': direct_url, 'filename' : filename, 'dkey' : token}), 200
             except Exception as e:
