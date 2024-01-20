@@ -17,7 +17,7 @@ from PIL import Image
 import dropbox
 blob_files = {}
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "https://spotify-downloader-killua.vercel.app"}})
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 client_id=os.environ.get('CLIENT_ID')
 client_secret=os.environ.get('CLIENT_SECRET')
