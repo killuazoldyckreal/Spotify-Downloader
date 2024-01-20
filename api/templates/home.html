@@ -155,16 +155,25 @@
                 let dkey;
                 const spotifyUrl = urlInputValue.trim();
                 const match = spotifyUrl.match(/\/track\/(\w+)/);
-                if (!match || match.length < 2) {
-                    console.error('Invalid Spotify URL');
+                if (match.length < 1) {
+                    alert('Invalid Input');
                     return;
                 }
+                let requestData;
                 displayMessage(progressText, "Preparing request...", 1000);
-                const trackId = match[1];
+                if (!match) {
+                    requestData = {
+                        'name': spotifyUrl
+                    };
+                }
+                else {
+                    const trackId = match[1];
+                    requestData = {
+                        'track_id': trackId
+                    };
+                }
                 const url = 'https://spotifydownloader-29wx.onrender.com:443/download';
-                const requestData = {
-                    'track_id': trackId
-                };
+                
                 const jsonData = JSON.stringify(requestData);
                 displayMessage(progressText, "Fetching song...", 2000);
                 fetch(url, { method: 'POST',
