@@ -120,7 +120,7 @@
                 'dkey': dkey
             };
             const jsonData2 = JSON.stringify(requestData2);
-            fetch('https://spotify-downloader-killua.vercel.app:443/deletefile', {
+            fetch('https://spotifydownloader-29wx.onrender.com:443/deletefile', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -161,7 +161,7 @@
                 }
                 displayMessage(progressText, "Preparing request...", 1000);
                 const trackId = match[1];
-                const url = 'https://spotify-downloader-killua.vercel.app:443/download';
+                const url = 'https://spotifydownloader-29wx.onrender.com:443/download';
                 const requestData = {
                     'track_id': trackId
                 };
