@@ -117,7 +117,7 @@
                 document.getElementById("progress").style.width = "0%";
                 document.getElementById("progressText").innerHTML = "0%";
                 document.getElementById("urlInput").value = "";
-                document.getElementById("downloadButton").innerHTML = "Download";
+                document.getElementById("downloadButton").value = "Download";
                 isDownloading = false;
             }, 3000);
         }
@@ -160,10 +160,10 @@
                 console.log(isDownloading);
                 if (!isDownloading) {
                     isDownloading = true;
-                    document.getElementById("downloadButton").innerHTML = "Cancel download";
+                    document.getElementById("downloadButton").value = "Cancel download";
                     abortController = new AbortController();
                     console.log("2");
-                    console.log(document.getElementById("downloadButton").innerHTML);
+                    console.log(document.getElementById("downloadButton").value);
 
                 }
                 else {
