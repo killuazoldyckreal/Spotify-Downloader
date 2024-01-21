@@ -148,10 +148,8 @@ def get_mp3(url):
         new_url = first_download_link
         response = requests.get(new_url)
         if response.ok:
-            content_disposition = response.headers.get('Content-Disposition')
-            filename = content_disposition.split('filename=')[1].replace('"', '') if content_disposition else 'output.mp3'
             audiobytes = response.content
-            return audiobytes, filename
+            return audiobytes, None
         else:
             return None, None
     except:

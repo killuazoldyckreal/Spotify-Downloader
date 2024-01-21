@@ -101,6 +101,7 @@ def downloading():
             }
             filelike = BytesIO(audiobytes)
             merged_file = add_mdata(filelike, mdata)
+            filename = track_name + ".mp3"
             token = secrets.token_hex(12)
             try:
                 #resp = blob.put(
