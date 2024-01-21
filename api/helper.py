@@ -1,4 +1,4 @@
-from mutagen.id3 import ID3, APIC
+from mutagen.id3 import ID3, APIC, TIT2, TPE1, TALB, TDRC, TCON, TPE2, USLT
 from PIL import Image
 from io import BytesIO
 import requests
@@ -6,7 +6,7 @@ import os
 from urllib.parse import urlparse
 from spotipy.cache_handler import CacheHandler
 import dropbox
-
+from bs4 import BeautifulSoup
 api_key=os.environ.get('API_KEY')
 ACCESS_TOKEN = os.environ.get('DROPBOX_ACCESS_TOKEN')
 
@@ -90,10 +90,17 @@ def get_lyrics(track_id):
     else:
         return None
 
-def add_cover_art(audio_file, cover_art_url):
+def add_mdata(audio_file,metadata):
     audio_file.seek(0)
     tags = ID3()
-    cover_image_data = BytesIO(requests.get(cover_art_url).content)
+    cover_image_data = BytesIO(requests.get(metadata['cover_art_url']).content)
+    tags['TIT2'] = TIT2(encoding=3, text=metadata['track_name'])
+    tags['TPE1'] = TPE1(encoding=3, text=metadata['artists'])
+    tags['TALB'] = TALB(encoding=3, text=metadata['album_name'])
+    tags['TDRC'] = TDRC(encoding=3, text=metadata['release_date'])
+    tags['TCON'] = TCON(encoding=3, text=metadata['genres'])
+    if 'album_artists' in metadata:
+        tags['TPE2'] = TPE2(encoding=3, text=metadata['album_artists'])
     tags['APIC'] = APIC(
         encoding=0,
         mime='image/jpeg',
@@ -133,7 +140,7 @@ def get_mp3(url):
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         }
         html_response = requests.get(url, headers=headers)
-        soup = BeautifulSoup(html_response, 'html.parser')
+        soup = BeautifulSoup(html_response.text, 'html.parser')
         spotify_downloader_div = soup.find('div', class_='spotifymate-downloader-right is-desktop-only')
         first_download_link = spotify_downloader_div.find('div', class_='abuttons mb-0').find('span', text='Download Mp3').find_parent('a')['href']
         print(first_download_link.text)

@@ -2,7 +2,7 @@ from flask import Flask, request, render_template, jsonify
 import os, requests, json, traceback, secrets
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
-from helper import is_valid_spotify_url, get_song_metadata, get_mp3, upload_file, add_cover_art, CustomCacheHandler
+from helper import is_valid_spotify_url, get_song_metadata, get_mp3, upload_file, add_mdata, CustomCacheHandler
 from flask_cors import CORS
 from io import BytesIO
 #from vercel_storage import blob
@@ -83,9 +83,24 @@ def downloading():
                 audiobytes, filename = get_mp3(url)
             if not audiobytes:
                 return jsonify({'success': False, 'error': 'Song not found'}), 400
+            track_name = results['name']
+            album_name = results['album']['name']
+            release_date = results['album']['release_date']
+            artists = [artist['name'] for artist in results['artists']]
+            album_artists = [artist['name'] for artist in results['album']['artists']]
+            genres = sp.artist(results['artists'][0]['id'])['genres']
             cover_art_url = results['album']['images'][0]['url']
+            mdata = { 
+                'track_name': track_name,
+                'album_name': album_name,
+                'release_date': release_date,
+                'artists': artists,
+                'album_artists': album_artists,
+                'genres': genres,
+                'cover_art_url': cover_art_url
+            }
             filelike = BytesIO(audiobytes)
-            merged_file = add_cover_art(filelike, cover_art_url)
+            merged_file = add_mdata(filelike, mdata)
             token = secrets.token_hex(12)
             try:
                 #resp = blob.put(
