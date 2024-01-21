@@ -2,11 +2,25 @@ from mutagen.id3 import ID3, APIC
 from PIL import Image
 from io import BytesIO
 import requests
-import os, tempfile
+import os
 from urllib.parse import urlparse
+from spotipy.cache_handler import CacheHandler
+import dropbox
 
 api_key=os.environ.get('API_KEY')
-    
+ACCESS_TOKEN = os.environ.get('DROPBOX_ACCESS_TOKEN')
+
+class CustomCacheHandler(CacheHandler):
+    def __init__(self):
+        self.cache_path = None
+
+    def get_cached_token(self):
+        cached_token = os.environ.get('MY_API_TOKEN')
+        return eval(cached_token) if cached_token else None
+
+    def save_token_to_cache(self, token_info):
+        os.environ['MY_API_TOKEN'] = str(token_info)
+
 def is_valid_spotify_url(url):
     """
     Verify if the given URL is a valid Spotify track URL.
@@ -76,23 +90,74 @@ def get_lyrics(track_id):
     else:
         return None
 
-class MDATA:
-    def __init__(self, audiobytesio, data) -> None:
-        self.audiobytesio  = audiobytesio 
-        self.metadata = data
+def add_cover_art(audio_file, cover_art_url):
+    audio_file.seek(0)
+    tags = ID3()
+    cover_image_data = BytesIO(requests.get(cover_art_url).content)
+    tags['APIC'] = APIC(
+        encoding=0,
+        mime='image/jpeg',
+        type=3,
+        desc=u'Cover',
+        data=cover_image_data.getvalue()
+    )
+    tags.save(audio_file)
+    audio_file.seek(0)
+    return audio_file
 
-    def add_cover_art(self):
-        metadata = self.metadata
-        tags = ID3()
-        if 'cover_art_url' in metadata:
-            cover_url = metadata['cover_art_url']
-            cover_image_data = BytesIO(requests.get(cover_url).content)
-            tags['APIC'] = APIC(
-                encoding=0,  # 0 is for utf-8
-                mime='image/jpeg',
-                type=3,  # 3 is for the front cover
-                desc=u'Cover',
-                data=cover_image_data.getvalue()
-            )
-        tags.save(self.audiobytesio)
-        return True
+def upload_file(f, dropbox_path):
+    dbx = dropbox.Dropbox(ACCESS_TOKEN)
+    response = dbx.files_upload(f.read(), dropbox_path, autorename=True)
+    shared_link_metadata = dbx.sharing_create_shared_link(path=response.path_display)
+    direct_link = shared_link_metadata.url.replace('&dl=0', '&dl=1')
+    direct_link2 = direct_link.replace('https://www.dropbox.com', 'https://dl.dropboxusercontent.com')
+    return direct_link, direct_link2
+
+def get_mp3(url):
+    headers = {
+        'Accept': '*/*',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'en-GB,en;q=0.8',
+        'Cache-Control': 'no-cache',
+        'Origin': 'https://spotifydown.com',
+        'Pragma': 'no-cache',
+        'Referer': 'https://spotifydown.com/',
+        'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Brave";v="120"',
+        'Sec-Ch-Ua-Mobile': '?0',
+        'Sec-Ch-Ua-Platform': '"Windows"',
+        'Sec-Fetch-Dest': 'empty',
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Site': 'same-site',
+        'Sec-Gpc': '1',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    }
+    response = requests.get(url, headers=headers)
+    data = response.json()
+    new_url = data['link']
+    new_headers = {
+        'Accept': '*/*',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'en-GB,en;q=0.8',
+        'Cache-Control': 'no-cache',
+        'Origin': 'https://spotifydown.com',
+        'Pragma': 'no-cache',
+        'Referer': 'https://spotifydown.com/',
+        'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Brave";v="120"',
+        'Sec-Ch-Ua-Mobile': '?0',
+        'Sec-Ch-Ua-Platform': '"Windows"',
+        'Sec-Fetch-Dest': 'empty',
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Site': 'cross-site',
+        'Sec-Gpc': '1',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    }
+
+    response = requests.get(new_url, headers=new_headers)
+
+    if response.ok:
+        content_disposition = response.headers.get('Content-Disposition')
+        filename = content_disposition.split('filename=')[1].replace('"', '') if content_disposition else 'output.mp3'
+        audiobytes = response.content
+        return audiobytes, filename
+    else:
+        return None, None
