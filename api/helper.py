@@ -114,50 +114,53 @@ def upload_file(f, dropbox_path):
     return direct_link, direct_link2
 
 def get_mp3(url):
-    headers = {
-        'Accept': '*/*',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Accept-Language': 'en-GB,en;q=0.8',
-        'Cache-Control': 'no-cache',
-        'Origin': 'https://spotifydown.com',
-        'Pragma': 'no-cache',
-        'Referer': 'https://spotifydown.com/',
-        'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Brave";v="120"',
-        'Sec-Ch-Ua-Mobile': '?0',
-        'Sec-Ch-Ua-Platform': '"Windows"',
-        'Sec-Fetch-Dest': 'empty',
-        'Sec-Fetch-Mode': 'cors',
-        'Sec-Fetch-Site': 'same-site',
-        'Sec-Gpc': '1',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    }
-    response = requests.get(url, headers=headers)
-    data = response.json()
-    new_url = data['link']
-    new_headers = {
-        'Accept': '*/*',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Accept-Language': 'en-GB,en;q=0.8',
-        'Cache-Control': 'no-cache',
-        'Origin': 'https://spotifydown.com',
-        'Pragma': 'no-cache',
-        'Referer': 'https://spotifydown.com/',
-        'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Brave";v="120"',
-        'Sec-Ch-Ua-Mobile': '?0',
-        'Sec-Ch-Ua-Platform': '"Windows"',
-        'Sec-Fetch-Dest': 'empty',
-        'Sec-Fetch-Mode': 'cors',
-        'Sec-Fetch-Site': 'cross-site',
-        'Sec-Gpc': '1',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    }
+    try:
+        headers = {
+            'Accept': '*/*',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'en-GB,en;q=0.8',
+            'Cache-Control': 'no-cache',
+            'Origin': 'https://spotifydown.com',
+            'Pragma': 'no-cache',
+            'Referer': 'https://spotifydown.com/',
+            'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Brave";v="120"',
+            'Sec-Ch-Ua-Mobile': '?0',
+            'Sec-Ch-Ua-Platform': '"Windows"',
+            'Sec-Fetch-Dest': 'empty',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Site': 'same-site',
+            'Sec-Gpc': '1',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        }
+        response = requests.get(url, headers=headers)
+        data = response.json()
+        new_url = data['link']
+        new_headers = {
+            'Accept': '*/*',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'en-GB,en;q=0.8',
+            'Cache-Control': 'no-cache',
+            'Origin': 'https://spotifydown.com',
+            'Pragma': 'no-cache',
+            'Referer': 'https://spotifydown.com/',
+            'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Brave";v="120"',
+            'Sec-Ch-Ua-Mobile': '?0',
+            'Sec-Ch-Ua-Platform': '"Windows"',
+            'Sec-Fetch-Dest': 'empty',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Site': 'cross-site',
+            'Sec-Gpc': '1',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        }
 
-    response = requests.get(new_url, headers=new_headers)
+        response = requests.get(new_url, headers=new_headers)
 
-    if response.ok:
-        content_disposition = response.headers.get('Content-Disposition')
-        filename = content_disposition.split('filename=')[1].replace('"', '') if content_disposition else 'output.mp3'
-        audiobytes = response.content
-        return audiobytes, filename
-    else:
+        if response.ok:
+            content_disposition = response.headers.get('Content-Disposition')
+            filename = content_disposition.split('filename=')[1].replace('"', '') if content_disposition else 'output.mp3'
+            audiobytes = response.content
+            return audiobytes, filename
+        else:
+            return None, None
+    except:
         return None, None
