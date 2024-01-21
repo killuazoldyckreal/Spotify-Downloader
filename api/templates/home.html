@@ -154,23 +154,19 @@
             });
         }
         document.addEventListener('DOMContentLoaded', function () {
-            const downloadButton = document.getElementById("downloadButton");
-            downloadButton.addEventListener("click", function () {
+            document.getElementById("downloadForm").addEventListener("submit", function (event) {
+                event.preventDefault();
                 if (!isDownloading) {
                     isDownloading = true;
-                    downloadButton.innerHTML = "Cancel download";
+                    document.getElementById("downloadButton").innerHTML = "Cancel download";
                     abortController = new AbortController();
 
-                } else {
+                }
+                else {
                     if (abortController) {
                         abortController.abort();
                     }
                     hideProgress();
-                }
-            });
-            document.getElementById("downloadForm").addEventListener("submit", function (event) {
-                event.preventDefault();
-                if (isDownloading) {
                     return;
                 }
                 var urlInputValue = document.getElementById("urlInput").value;
