@@ -108,6 +108,8 @@
     </div>
 
     <script>
+        let isDownloading = false;
+        let abortController;
         function hideProgress() {
             setTimeout(function() {
                 document.getElementById("progressBar").style.display = "none";
@@ -115,7 +117,8 @@
                 document.getElementById("progress").style.width = "0%";
                 document.getElementById("progressText").innerHTML = "0%";
                 document.getElementById("urlInput").value = "";
-                document.getElementById("downloadButton").style.removeProperty("display");
+                document.getElementById("downloadButton").innerHTML = "Download";
+                isDownloading = false;
             }, 3000);
         }
         function displayMessage(htmlelement, message, timeout) {
@@ -151,9 +154,25 @@
             });
         }
         document.addEventListener('DOMContentLoaded', function () {
+            const downloadButton = document.getElementById("downloadButton");
+            downloadButton.addEventListener("click", function () {
+                if (!isDownloading) {
+                    isDownloading = true;
+                    downloadButton.innerHTML = "Cancel download";
+                    abortController = new AbortController();
+
+                } else {
+                    if (abortController) {
+                        abortController.abort();
+                    }
+                    hideProgress();
+                }
+            });
             document.getElementById("downloadForm").addEventListener("submit", function (event) {
                 event.preventDefault();
-                document.getElementById("downloadButton").style.display = "none";
+                if (isDownloading) {
+                    return;
+                }
                 var urlInputValue = document.getElementById("urlInput").value;
                 var progressBardiv = document.getElementById("progressBar");
                 var progressBar = document.getElementById("progress");
