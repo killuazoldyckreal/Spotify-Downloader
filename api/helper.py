@@ -118,7 +118,7 @@ def get_mp3(url):
         headers = {
             'Accept': '*/*',
             'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'en-GB,en;q=0.8',
+            'Accept-Language': 'en-GB,en;q=0.7',
             'Cache-Control': 'no-cache',
             'Origin': 'https://spotifydown.com',
             'Pragma': 'no-cache',
