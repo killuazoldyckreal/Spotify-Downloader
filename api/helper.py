@@ -118,7 +118,7 @@ def get_mp3(url):
         headers = {
             'Accept': '*/*',
             'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'en-GB,en;q=0.7',
+            'Accept-Language': 'en-GB,en;q=0.8',
             'Cache-Control': 'no-cache',
             'Origin': 'https://spotifydown.com',
             'Pragma': 'no-cache',
@@ -133,12 +133,13 @@ def get_mp3(url):
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         }
         response = requests.get(url, headers=headers)
+        print(response.text)
         data = response.json()
         new_url = data['link']
         new_headers = {
             'Accept': '*/*',
             'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'en-GB,en;q=0.7',
+            'Accept-Language': 'en-GB,en;q=0.8',
             'Cache-Control': 'no-cache',
             'Origin': 'https://spotifydown.com',
             'Pragma': 'no-cache',
