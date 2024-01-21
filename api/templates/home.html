@@ -156,19 +156,29 @@
         document.addEventListener('DOMContentLoaded', function () {
             document.getElementById("downloadForm").addEventListener("submit", function (event) {
                 event.preventDefault();
+                console.log("1");
+                console.log(isDownloading);
                 if (!isDownloading) {
                     isDownloading = true;
                     document.getElementById("downloadButton").innerHTML = "Cancel download";
                     abortController = new AbortController();
+                    console.log("2");
+                    console.log(isDownloading);
 
                 }
                 else {
                     if (abortController) {
+                        console.log("3");
+                        console.log(isDownloading);
                         abortController.abort();
                     }
+                    console.log("4");
+                    console.log(isDownloading);
                     hideProgress();
                     return;
                 }
+                console.log("5");
+                console.log(isDownloading);
                 var urlInputValue = document.getElementById("urlInput").value;
                 var progressBardiv = document.getElementById("progressBar");
                 var progressBar = document.getElementById("progress");
@@ -184,6 +194,8 @@
                     return;
                 }
                 let requestData;
+                console.log("6");
+                console.log(isDownloading);
                 displayMessage(progressText, "Preparing request...", 1000);
                 if (!match) {
                     requestData = {
