@@ -132,29 +132,14 @@ def get_mp3(url):
             'Sec-Gpc': '1',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         }
-        response = requests.get(url, headers=headers)
-        print(response.text)
-        data = response.json()
-        new_url = data['link']
-        new_headers = {
-            'Accept': '*/*',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'en-GB,en;q=0.8',
-            'Cache-Control': 'no-cache',
-            'Origin': 'https://spotifydown.com',
-            'Pragma': 'no-cache',
-            'Referer': 'https://spotifydown.com/',
-            'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Brave";v="120"',
-            'Sec-Ch-Ua-Mobile': '?0',
-            'Sec-Ch-Ua-Platform': '"Windows"',
-            'Sec-Fetch-Dest': 'empty',
-            'Sec-Fetch-Mode': 'cors',
-            'Sec-Fetch-Site': 'cross-site',
-            'Sec-Gpc': '1',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        }
-        response = requests.get(new_url, headers=new_headers)
-
+        html_response = requests.get(url, headers=headers)
+        soup = BeautifulSoup(html_response, 'html.parser')
+        spotify_downloader_div = soup.find('div', class_='spotifymate-downloader-right is-desktop-only')
+        first_download_link = spotify_downloader_div.find('div', class_='abuttons mb-0').find('span', text='Download Mp3').find_parent('a')['href']
+        print(first_download_link.text)
+        #data = response.json()
+        new_url = first_download_link
+        response = requests.get(new_url)
         if response.ok:
             content_disposition = response.headers.get('Content-Disposition')
             filename = content_disposition.split('filename=')[1].replace('"', '') if content_disposition else 'output.mp3'
