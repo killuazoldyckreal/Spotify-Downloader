@@ -71,7 +71,7 @@ def downloading():
                 baseurl = 'https://api.fabdl.com/spotify/get?url='
                 try:
                     results = sp.track(track_id)
-                    song_url = results['uri']
+                    song_url = "https://open.spotify.com/track/" + track_id
                     encodedurl = quote(song_url)
                     url = baseurl + encodedurl
                     app.logger.error(url)
@@ -85,7 +85,7 @@ def downloading():
                     results = sp.search(q=track_name, type='track', limit=1)['tracks']['items'][0]
                 except:
                     return jsonify({'success': False, 'error': 'Song not found'}), 400
-                song_url = results['uri']
+                song_url = "https://open.spotify.com/track/" + results['id']
                 encodedurl = quote(song_url)
                 url = baseurl + encodedurl
                 audiobytes, filename = get_mp3(url)
