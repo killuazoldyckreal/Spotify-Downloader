@@ -2,7 +2,7 @@ from flask import Flask, request, render_template, jsonify
 import os, requests, json, traceback, secrets
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
-from helper import is_valid_spotify_url, get_song_metadata, get_mp3, upload_file, add_mdata, CustomCacheHandler
+from helper import *
 from flask_cors import CORS
 from io import BytesIO
 import dropbox
@@ -12,9 +12,6 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 client_id=os.environ.get('CLIENT_ID')
 client_secret=os.environ.get('CLIENT_SECRET')
-ACCESS_KEY = os.environ.get('DROPBOX_KEY')
-ACCESS_SECRET = os.environ.get('DROPBOX_SECRET')
-ACCESS_TOKEN = os.environ.get('DROPBOX_TOKEN')
 
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret, cache_handler=CustomCacheHandler()))
 
@@ -25,19 +22,12 @@ def deletingfile():
             data = request.get_json()
             if 'dkey' in data and data['dkey'] in active_files:
                 try:
-                    try:
-                        dbx = dropbox.Dropbox(ACCESS_TOKEN)
-                        dbx.users_get_current_account()
-                    except:
-                        new_access_token = dropbox.DropboxOAuth2FlowNoRedirect(ACCESS_KEY, ACCESS_SECRET).refresh_token(ACCESS_TOKEN)
-                        os.environ['DROPBOX_TOKEN'] = new_access_token
-                        dbx = dropbox.Dropbox(new_access_token)
                     dropbox_path = active_files[data['dkey']]
-                    dbx.files_delete(dropbox_path)
-                    return jsonify({'success': True}), 200
+                    delete_file(dropbox_path)
                 except:
                     app.logger.exception(traceback.format_exc())
                     return jsonify({'success': False}), 400
+                return jsonify({'success': True}), 200
             else:
                 return jsonify({'success': False, 'error': 'Key Mismatch or File does not exist'}), 400
         else:

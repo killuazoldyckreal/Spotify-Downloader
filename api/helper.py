@@ -142,6 +142,17 @@ def upload_file(f, dropbox_path):
     direct_link2 = direct_link.replace('https://www.dropbox.com', 'https://dl.dropboxusercontent.com')
     return direct_link, direct_link2
 
+def delete_file(dropbox_path):
+    try:
+        dbx = dropbox.Dropbox(ACCESS_TOKEN)
+        dbx.users_get_current_account()
+    except:
+        new_access_token = dropbox.DropboxOAuth2FlowNoRedirect(ACCESS_KEY, ACCESS_SECRET).refresh_token(ACCESS_TOKEN)
+        os.environ['DROPBOX_TOKEN'] = new_access_token
+        dbx = dropbox.Dropbox(new_access_token)
+    dbx.files_delete(dropbox_path)
+    return
+
 def get_mp3(url):
     response = requests.get(url)
     if response.ok:
