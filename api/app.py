@@ -33,7 +33,7 @@ def deletingfile():
                         os.environ['DROPBOX_TOKEN'] = new_access_token
                         dbx = dropbox.Dropbox(new_access_token)
                     dropbox_path = active_files[data['dkey']]
-                    dbx.files_permanently_delete(dropbox_path)
+                    dbx.files_delete(dropbox_path)
                     return jsonify({'success': True}), 200
                 except:
                     app.logger.exception(traceback.format_exc())
