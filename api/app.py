@@ -75,20 +75,19 @@ def downloading():
                     #encodedurl = quote(song_url)
                     url = baseurl + song_url
                     app.logger.error(url)
-                    audiobytes, filename = get_mp3(url)
+                    audiobytes, filename = get_mp3(app.logger, url)
                 except:
-                    app.logger.exception(traceback.format_exc())
-                    return jsonify({'success': False, 'error': 'Song not found or invalid URL', 'errorinfo' : traceback.format_exc()}), 400
+                    return jsonify({'success': False, 'error': 'Song not found or invalid URL'}), 400
             else:
                 track_name = data.get('name')
                 try:
                     results = sp.search(q=track_name, type='track', limit=1)['tracks']['items'][0]
                 except:
                     return jsonify({'success': False, 'error': 'Song not found'}), 400
-                song_url = "https://open.spotify.com/track/" + results['id']
-                encodedurl = quote(song_url)
-                url = baseurl + encodedurl
-                audiobytes, filename = get_mp3(url)
+                song_url = """https%3A%2F%2Fopen.spotify.com%2Ftrack%2F""" + results['id']
+                #encodedurl = quote(song_url)
+                url = baseurl + song_url
+                audiobytes, filename = get_mp3(app.logger, url)
             if not audiobytes:
                 return jsonify({'success': False, 'error': 'Song not found'}), 400
             track_name = results['name']

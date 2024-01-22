@@ -134,7 +134,7 @@ def upload_file(f, dropbox_path):
     direct_link2 = direct_link.replace('https://www.dropbox.com', 'https://dl.dropboxusercontent.com')
     return direct_link, direct_link2
 
-def get_mp3(url):
+def get_mp3(logger, url):
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
         "Accept": "application/json, text/plain, */*",
@@ -150,35 +150,40 @@ def get_mp3(url):
         "Sec-GPC": "1"
     }
     response = requests.get(url, headers=headers)
-    data = response.json()
-    gid = data["result"]["gid"]
-    tid = data["result"]["id"]
-    #qtid = quote(tid)
-    headers2 = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
-        "Accept": "application/json, text/plain, */*",
-        "Accept-Language": "en-US,en;q=0.5",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Origin": "https://spotifydownload.org",
-        "Connection": "keep-alive",
-        "Referer": "https://spotifydownload.org/",
-        "Sec-Fetch-Dest": "empty",
-        "Sec-Fetch-Mode": "cors",
-        "Sec-Fetch-Site": "cross-site",
-        "DNT": "1",
-        "Sec-GPC": "1",
-        "TE": "trailers"
-    }
-    url2 = f"https://api.fabdl.com/spotify/mp3-convert-task/{gid}/{tid}"
-    response2 = requests.get(url2, headers=headers2)
-    if response2.ok:
-        data2 = response2.json()
-        download_url = "https://api.fabdl.com" + data2["result"]["download_url"]
-        response3 = requests.get(download_url, headers=headers2)
-        if response3.ok:
-            audiobytes = response3.content
-            return audiobytes, None
+    if response.ok:
+        logger.error(response.text)
+        data = response.json()
+        gid = data["result"]["gid"]
+        tid = data["result"]["id"]
+        #qtid = quote(tid)
+        headers2 = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Origin": "https://spotifydownload.org",
+            "Connection": "keep-alive",
+            "Referer": "https://spotifydownload.org/",
+            "Sec-Fetch-Dest": "empty",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Site": "cross-site",
+            "DNT": "1",
+            "Sec-GPC": "1",
+            "TE": "trailers"
+        }
+        url2 = f"https://api.fabdl.com/spotify/mp3-convert-task/{gid}/{tid}"
+        response2 = requests.get(url2, headers=headers2)
+        if response2.ok:
+            data2 = response2.json()
+            download_url = "https://api.fabdl.com" + data2["result"]["download_url"]
+            response3 = requests.get(download_url, headers=headers2)
+            if response3.ok:
+                audiobytes = response3.content
+                return audiobytes, None
+            else:
+                return None, None
         else:
             return None, None
     else:
+        logger.error(response.text)
         return None, None

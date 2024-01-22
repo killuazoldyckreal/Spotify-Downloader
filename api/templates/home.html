@@ -199,7 +199,6 @@
                 const url = 'https://spotifydownloader-killua.onrender.com:443/download';
                 
                 const jsonData = JSON.stringify(requestData);
-                console.log(jsonData);
                 displayMessage(progressText, "Fetching song...", 2000);
                 fetch(url, { method: 'POST',
                 headers: {
