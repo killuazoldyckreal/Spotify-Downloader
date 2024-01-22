@@ -158,9 +158,7 @@
                 event.preventDefault();
                 if (!isDownloading) {
                     isDownloading = true;
-                    document.getElementById("downloadButton").value = "Cancel download";
                     abortController = new AbortController();
-
                 }
                 else {
                     if (abortController) {
@@ -173,7 +171,6 @@
                 var progressBardiv = document.getElementById("progressBar");
                 var progressBar = document.getElementById("progress");
                 var progressText = document.getElementById("progressText");
-                progressText.style.display = "inline";
                 let filename;
                 let dkey;
                 const spotifyUrl = urlInputValue.trim();
@@ -183,6 +180,8 @@
                     hideProgress();
                     return;
                 }
+                document.getElementById("downloadButton").value = "Cancel download";
+                progressText.style.display = "inline";
                 let requestData;
                 displayMessage(progressText, "Preparing request...", 1000);
                 if (!match) {
