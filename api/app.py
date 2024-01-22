@@ -69,6 +69,7 @@ def downloading():
                 url = 'https://api.spotifydown.com/download/' + track_id
                 try:
                     results = sp.track(track_id)
+                    url = 'https://spotidown.com/wp-json/spotify-downloader/v1/download?api_request_path=download%2F&item_id='+track_id
                     audiobytes, filename = get_mp3(url)
                 except:
                     traceback.print_exc()
@@ -79,7 +80,7 @@ def downloading():
                     results = sp.search(q=track_name, type='track', limit=1)['tracks']['items'][0]
                 except:
                     return jsonify({'success': False, 'error': 'Song not found'}), 400
-                url = 'https://api.spotifydown.com/download/' + results['id']
+                url = 'https://spotidown.com/wp-json/spotify-downloader/v1/download?api_request_path=download%2F&item_id=' + results['id']
                 audiobytes, filename = get_mp3(url)
             if not audiobytes:
                 return jsonify({'success': False, 'error': 'Song not found'}), 400

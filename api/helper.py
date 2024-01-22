@@ -112,6 +112,20 @@ def add_mdata(audio_file,metadata):
     audio_file.seek(0)
     return audio_file
 
+def format_duration(milliseconds):
+    seconds = milliseconds // 1000
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+
+    formatted_duration = ""
+    if hours > 0:
+        formatted_duration += f"{hours}h "
+    if minutes > 0:
+        formatted_duration += f"{minutes}m "
+    formatted_duration += f"{seconds}s"
+
+    return formatted_duration.strip()
+
 def upload_file(f, dropbox_path):
     dbx = dropbox.Dropbox(ACCESS_TOKEN)
     response = dbx.files_upload(f.read(), dropbox_path, autorename=True)
@@ -121,32 +135,17 @@ def upload_file(f, dropbox_path):
     return direct_link, direct_link2
 
 def get_mp3(url):
+
     try:
         headers = {
-            'Accept': '*/*',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'en-GB,en;q=0.8',
-            'Cache-Control': 'no-cache',
-            'Origin': 'https://spotifydown.com',
-            'Pragma': 'no-cache',
-            'Referer': 'https://spotifydown.com/',
-            'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Brave";v="120"',
-            'Sec-Ch-Ua-Mobile': '?0',
-            'Sec-Ch-Ua-Platform': '"Windows"',
-            'Sec-Fetch-Dest': 'empty',
-            'Sec-Fetch-Mode': 'cors',
-            'Sec-Fetch-Site': 'same-site',
-            'Sec-Gpc': '1',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0',
+            'Accept': 'application/json',
+            'Referer': 'https://spotidown.com/',
+            'Cookie': 'dom3ic8zudi28v8lr6fgphwffqoz0j6c=0496b97e-89e2-4fd9-b375-837f8823b8bc%3A2%3A1',
         }
         html_response = requests.get(url, headers=headers)
-        soup = BeautifulSoup(html_response.text, 'html.parser')
-        spotify_downloader_div = soup.find('div', class_='spotifymate-downloader-right is-desktop-only')
-        first_download_link = spotify_downloader_div.find('div', class_='abuttons mb-0').find('span', text='Download Mp3').find_parent('a')['href']
-        print(first_download_link.text)
-        #data = response.json()
-        new_url = first_download_link
-        response = requests.get(new_url)
+        first_download_link = html_response.text
+        response = requests.get(html_response.text)
         if response.ok:
             audiobytes = response.content
             return audiobytes, None
