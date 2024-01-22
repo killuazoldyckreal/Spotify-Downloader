@@ -74,6 +74,7 @@ def downloading():
                     song_url = results['uri']
                     encodedurl = quote(song_url)
                     url = baseurl + encodedurl
+                    app.logger.error(url)
                     audiobytes, filename = get_mp3(url)
                 except:
                     app.logger.exception(traceback.format_exc())
