@@ -33,7 +33,7 @@ def deletingfile():
                         os.environ['DROPBOX_TOKEN'] = new_access_token
                         dbx = dropbox.Dropbox(new_access_token)
                     dropbox_path = active_files[data['dkey']]
-                    dbx.files_delete(dropbox_path)
+                    #dbx.files_delete(dropbox_path)
                     url = "https://api.dropboxapi.com/2/files/delete_v2"
                     headers = {
                         "Authorization": "Bearer " + os.environ['DROPBOX_TOKEN'],
@@ -79,7 +79,6 @@ def downloading():
                 try:
                     results = sp.track(track_id)
                     url = baseurl + track_id
-                    app.logger.error(url)
                     audiobytes, filename = get_mp3(url)
                 except:
                     logger.exception(traceback.format_exc())
