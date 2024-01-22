@@ -3,7 +3,7 @@ from PIL import Image
 from io import BytesIO
 import requests
 import os
-from urllib.parse import urlparse, quote
+from urllib.parse import urlparse
 from spotipy.cache_handler import CacheHandler
 import dropbox
 from bs4 import BeautifulSoup
@@ -151,11 +151,9 @@ def get_mp3(logger, url):
     }
     response = requests.get(url, headers=headers)
     if response.ok:
-        logger.error(response.text)
         data = response.json()
         gid = data["result"]["gid"]
         tid = data["result"]["id"]
-        #qtid = quote(tid)
         headers2 = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
             "Accept": "application/json, text/plain, */*",
@@ -185,5 +183,4 @@ def get_mp3(logger, url):
         else:
             return None, None
     else:
-        logger.error(response.text)
         return None, None
