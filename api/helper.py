@@ -8,7 +8,9 @@ from spotipy.cache_handler import CacheHandler
 import dropbox
 from bs4 import BeautifulSoup
 api_key=os.environ.get('API_KEY')
-ACCESS_TOKEN = os.environ.get('DROPBOX_ACCESS_TOKEN')
+ACCESS_KEY = os.environ.get('DROPBOX_KEY')
+ACCESS_SECRET = os.environ.get('DROPBOX_SECRET')
+ACCESS_TOKEN = os.environ.get('DROPBOX_TOKEN')
 
 class CustomCacheHandler(CacheHandler):
     def __init__(self):
@@ -127,7 +129,13 @@ def format_duration(milliseconds):
     return formatted_duration.strip()
 
 def upload_file(f, dropbox_path):
-    dbx = dropbox.Dropbox(ACCESS_TOKEN)
+    try:
+        dbx = dropbox.Dropbox(ACCESS_TOKEN)
+        dbx.users_get_current_account()
+    except:
+        new_access_token = dropbox.DropboxOAuth2FlowNoRedirect(ACCESS_KEY, ACCESS_SECRET).refresh_token(ACCESS_TOKEN)
+        os.environ['DROPBOX_TOKEN'] = new_access_token
+        dbx = dropbox.Dropbox(new_access_token)
     response = dbx.files_upload(f.read(), dropbox_path, autorename=True)
     shared_link_metadata = dbx.sharing_create_shared_link(path=response.path_display)
     direct_link = shared_link_metadata.url.replace('&dl=0', '&dl=1')

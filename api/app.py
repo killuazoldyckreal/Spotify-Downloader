@@ -12,7 +12,9 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 client_id=os.environ.get('CLIENT_ID')
 client_secret=os.environ.get('CLIENT_SECRET')
-ACCESS_TOKEN = os.environ.get('DROPBOX_ACCESS_TOKEN')
+ACCESS_KEY = os.environ.get('DROPBOX_KEY')
+ACCESS_SECRET = os.environ.get('DROPBOX_SECRET')
+ACCESS_TOKEN = os.environ.get('DROPBOX_TOKEN')
 
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret, cache_handler=CustomCacheHandler()))
 
@@ -23,23 +25,19 @@ def deletingfile():
             data = request.get_json()
             if 'dkey' in data and data['dkey'] in active_files:
                 try:
-                    url = "https://api.dropboxapi.com/2/files/delete_v2"
-                    url2 = "https://api.dropboxapi.com/2/files/permanently_delete"
-                    headers = {
-                        "Authorization": f"Bearer {ACCESS_TOKEN}",
-                        "Content-Type": "application/json"
-                    }
+                    try:
+                        dbx = dropbox.Dropbox(ACCESS_TOKEN)
+                        dbx.users_get_current_account()
+                    except:
+                        new_access_token = dropbox.DropboxOAuth2FlowNoRedirect(ACCESS_KEY, ACCESS_SECRET).refresh_token(ACCESS_TOKEN)
+                        os.environ['DROPBOX_TOKEN'] = new_access_token
+                        dbx = dropbox.Dropbox(new_access_token)
                     dropbox_path = active_files[data['dkey']]
-                    rdata = {
-                        "path": dropbox_path
-                    }
-                    r = requests.post(url, headers=headers, data=json.dumps(rdata))
-                    r = requests.post(url2, headers=headers, data=json.dumps(rdata))
-                    
+                    dbx.files_delete(dropbox_path)                    
                     return jsonify({'success': True}), 200
                 except:
-                    traceback.print_exc()
-                    return jsonify({'success': False, 'filepath': dropbox_path, 'error': traceback.format_exc()}), 400
+                    logger.exception(traceback.format_exc())
+                    return jsonify({'success': False}), 400
             else:
                 return jsonify({'success': False, 'error': 'Key Mismatch or File does not exist'}), 400
         else:
