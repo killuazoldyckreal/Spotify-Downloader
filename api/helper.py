@@ -3,7 +3,7 @@ from PIL import Image
 from io import BytesIO
 import requests
 import os
-from urllib.parse import urlparse
+from urllib.parse import urlparse, quote
 from spotipy.cache_handler import CacheHandler
 import dropbox
 from bs4 import BeautifulSoup
@@ -136,16 +136,49 @@ def upload_file(f, dropbox_path):
 
 def get_mp3(url):
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0',
-        'Accept': 'application/json',
-        'Referer': 'https://spotidown.com/',
-        'Cookie': 'dom3ic8zudi28v8lr6fgphwffqoz0j6c=0496b97e-89e2-4fd9-b375-837f8823b8bc%3A2%3A1',
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Origin": "https://spotifydownload.org",
+        "Connection": "keep-alive",
+        "Referer": "https://spotifydownload.org/",
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Mode": "cors",
+        "Sec-Fetch-Site": "cross-site",
+        "DNT": "1",
+        "Sec-GPC": "1"
     }
-    html_response = requests.get(url, headers=headers)
-    first_download_link = html_response.text
-    response = requests.get(html_response.text)
-    if response.ok:
-        audiobytes = response.content
-        return audiobytes, None
+    response = requests.get(url, headers=headers)
+    data = response.json()
+    gid = data["result"]["gid"]
+    tid = data["result"]["id"]
+    qtid = quote(tid)
+    headers2 = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Origin": "https://spotifydownload.org",
+        "Connection": "keep-alive",
+        "Referer": "https://spotifydownload.org/",
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Mode": "cors",
+        "Sec-Fetch-Site": "cross-site",
+        "DNT": "1",
+        "Sec-GPC": "1",
+        "TE": "trailers"
+    }
+    url2 = f"https://api.fabdl.com/spotify/mp3-convert-task/{gid}/{qtid}"
+    response2 = requests.get(url2, headers=headers2)
+    if response2.ok:
+        data2 = response2.json()
+        download_url = "https://api.fabdl.com" + data2["result"]["download_url"]
+        response3 = requests.get(download_url, headers=headers2)
+        if response3.ok:
+            audiobytes = response3.content
+            return audiobytes, None
+        else:
+            return None, None
     else:
         return None, None

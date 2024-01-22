@@ -7,7 +7,7 @@ from flask_cors import CORS
 from io import BytesIO
 #from vercel_storage import blob
 import dropbox
-
+from urllib.parse import quote
 
 active_files = {}
 app = Flask(__name__)
@@ -64,12 +64,16 @@ def downloading():
     elif request.method == 'POST':
         if request.is_json:
             data = request.get_json()
+            baseurl = 'https://api.fabdl.com/spotify/get?url='
             if 'track_id' in data:
                 track_id = data.get('track_id')
-                url = 'https://api.spotifydown.com/download/' + track_id
+                encodedtrack_id = quote(track_id)
+                baseurl = 'https://api.fabdl.com/spotify/get?url='
                 try:
                     results = sp.track(track_id)
-                    url = 'https://spotidown.com/wp-json/spotify-downloader/v1/download?api_request_path=download%2F&item_id='+track_id
+                    song_url = results['uri']
+                    encodedurl = quote(song_url)
+                    url = baseurl + encodedurl
                     audiobytes, filename = get_mp3(url)
                 except:
                     app.logger.exception(traceback.format_exc())
@@ -80,7 +84,9 @@ def downloading():
                     results = sp.search(q=track_name, type='track', limit=1)['tracks']['items'][0]
                 except:
                     return jsonify({'success': False, 'error': 'Song not found'}), 400
-                url = 'https://spotidown.com/wp-json/spotify-downloader/v1/download?api_request_path=download%2F&item_id=' + results['id']
+                song_url = results['uri']
+                encodedurl = quote(song_url)
+                url = baseurl + encodedurl
                 audiobytes, filename = get_mp3(url)
             if not audiobytes:
                 return jsonify({'success': False, 'error': 'Song not found'}), 400
