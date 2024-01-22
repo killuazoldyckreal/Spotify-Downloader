@@ -63,7 +63,6 @@ def downloading():
             baseurl = 'https://api.fabdl.com/spotify/get?url='
             if 'track_id' in data:
                 track_id = data.get('track_id')
-                encodedtrack_id = quote(track_id)
                 baseurl = 'https://api.fabdl.com/spotify/get?url=https://open.spotify.com/track/'
                 try:
                     results = sp.track(track_id)
