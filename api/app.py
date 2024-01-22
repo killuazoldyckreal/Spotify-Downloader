@@ -33,7 +33,21 @@ def deletingfile():
                         os.environ['DROPBOX_TOKEN'] = new_access_token
                         dbx = dropbox.Dropbox(new_access_token)
                     dropbox_path = active_files[data['dkey']]
-                    dbx.files_delete(dropbox_path)                    
+                    dbx.files_delete(dropbox_path)
+                    url = "https://api.dropboxapi.com/2/files/delete_v2"
+                    headers = {
+                        "Authorization": "Bearer " + os.environ['DROPBOX_TOKEN'],
+                        "Content-Type": "application/json"
+                    }
+                    data = {"path": dropbox_path}
+                    try:
+                        response = requests.post(url, headers=headers, data=json.dumps(data))
+                        if response.status_code == 200:
+                            logger.log("File permanently deleted successfully.")
+                        else:
+                            logger.exception(f"Error: {response.status_code}, {response.text}")
+                    except:
+                        logger.exception(traceback.format_exc()) 
                     return jsonify({'success': True}), 200
                 except:
                     logger.exception(traceback.format_exc())
