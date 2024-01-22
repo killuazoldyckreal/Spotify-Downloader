@@ -72,7 +72,7 @@ def downloading():
                     url = 'https://spotidown.com/wp-json/spotify-downloader/v1/download?api_request_path=download%2F&item_id='+track_id
                     audiobytes, filename = get_mp3(url)
                 except:
-                    traceback.print_exc()
+                    app.logger.exception(traceback.format_exc())
                     return jsonify({'success': False, 'error': 'Song not found or invalid URL', 'errorinfo' : traceback.format_exc()}), 400
             else:
                 track_name = data.get('name')

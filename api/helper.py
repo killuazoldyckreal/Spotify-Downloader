@@ -135,21 +135,17 @@ def upload_file(f, dropbox_path):
     return direct_link, direct_link2
 
 def get_mp3(url):
-
-    try:
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0',
-            'Accept': 'application/json',
-            'Referer': 'https://spotidown.com/',
-            'Cookie': 'dom3ic8zudi28v8lr6fgphwffqoz0j6c=0496b97e-89e2-4fd9-b375-837f8823b8bc%3A2%3A1',
-        }
-        html_response = requests.get(url, headers=headers)
-        first_download_link = html_response.text
-        response = requests.get(html_response.text)
-        if response.ok:
-            audiobytes = response.content
-            return audiobytes, None
-        else:
-            return None, None
-    except:
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0',
+        'Accept': 'application/json',
+        'Referer': 'https://spotidown.com/',
+        'Cookie': 'dom3ic8zudi28v8lr6fgphwffqoz0j6c=0496b97e-89e2-4fd9-b375-837f8823b8bc%3A2%3A1',
+    }
+    html_response = requests.get(url, headers=headers)
+    first_download_link = html_response.text
+    response = requests.get(html_response.text)
+    if response.ok:
+        audiobytes = response.content
+        return audiobytes, None
+    else:
         return None, None
