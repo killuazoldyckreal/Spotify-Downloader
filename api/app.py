@@ -43,14 +43,14 @@ def deletingfile():
                     try:
                         response = requests.post(url, headers=headers, data=json.dumps(data))
                         if response.status_code == 200:
-                            logger.log("File permanently deleted successfully.")
+                            app.logger.log("File permanently deleted successfully.")
                         else:
-                            logger.exception(f"Error: {response.status_code}, {response.text}")
+                            app.logger.exception(f"Error: {response.status_code}, {response.text}")
                     except:
-                        logger.exception(traceback.format_exc()) 
+                        app.logger.exception(traceback.format_exc()) 
                     return jsonify({'success': True}), 200
                 except:
-                    logger.exception(traceback.format_exc())
+                    app.logger.exception(traceback.format_exc())
                     return jsonify({'success': False}), 400
             else:
                 return jsonify({'success': False, 'error': 'Key Mismatch or File does not exist'}), 400
