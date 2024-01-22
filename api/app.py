@@ -5,7 +5,6 @@ from spotipy.oauth2 import SpotifyClientCredentials
 from helper import is_valid_spotify_url, get_song_metadata, get_mp3, upload_file, add_mdata, CustomCacheHandler
 from flask_cors import CORS
 from io import BytesIO
-#from vercel_storage import blob
 import dropbox
 
 active_files = {}
@@ -23,7 +22,6 @@ def deletingfile():
         if request.is_json:
             data = request.get_json()
             if 'dkey' in data and data['dkey'] in active_files:
-                #blob.delete(active_files[data['dkey']])
                 try:
                     url = "https://api.dropboxapi.com/2/files/delete_v2"
                     url2 = "https://api.dropboxapi.com/2/files/permanently_delete"
@@ -58,7 +56,6 @@ def home():
 def downloading():
     app.logger.debug('Received request to /download with method: %s', request.method)
     if request.method == 'GET':
-        # Handle GET request
         return jsonify({'message': 'This is a GET request on /download'})
     elif request.method == 'POST':
         if request.is_json:
@@ -104,14 +101,8 @@ def downloading():
             }
             filelike = BytesIO(audiobytes)
             merged_file = add_mdata(filelike, mdata)
-            filename = track_name + ".mp3"
             token = secrets.token_hex(12)
             try:
-                #resp = blob.put(
-                #    pathname=filename,
-                #    body=merged_file.read()
-                #)
-                #active_files[token] = resp['url']
                 dropbox_path = f"/songs/{filename}"
                 file_url, direct_url = upload_file(merged_file, dropbox_path)
                 active_files[token] = dropbox_path

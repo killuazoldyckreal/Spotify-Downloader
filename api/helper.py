@@ -140,6 +140,7 @@ def get_mp3(logger, url):
         data = response.json()
         gid = data["result"]["gid"]
         tid = data["result"]["id"]
+        filename = data["result"]["name"]+".mp3"
         url2 = f"https://api.fabdl.com/spotify/mp3-convert-task/{gid}/{tid}"
         response2 = requests.get(url2)
         if response2.ok:
@@ -148,7 +149,7 @@ def get_mp3(logger, url):
             response3 = requests.get(download_url)
             if response3.ok:
                 audiobytes = response3.content
-                return audiobytes, None
+                return audiobytes, filename
             else:
                 return None, None
         else:
