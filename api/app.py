@@ -74,7 +74,7 @@ def downloading():
                     song_url = "https://open.spotify.com/track/" + track_id
                     encodedurl = quote(song_url)
                     url = baseurl + encodedurl
-                    app.logger.error(url)
+                    app.logger.info(url)
                     audiobytes, filename = get_mp3(url)
                 except:
                     app.logger.exception(traceback.format_exc())
