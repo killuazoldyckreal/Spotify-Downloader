@@ -134,7 +134,7 @@ def upload_file(f, dropbox_path):
     direct_link2 = direct_link.replace('https://www.dropbox.com', 'https://dl.dropboxusercontent.com')
     return direct_link, direct_link2
 
-def get_mp3(logger, url):
+def get_mp3(url):
     response = requests.get(url)
     if response.ok:
         data = response.json()

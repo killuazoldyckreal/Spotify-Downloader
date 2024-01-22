@@ -70,6 +70,7 @@ def downloading():
                     app.logger.error(url)
                     audiobytes, filename = get_mp3(url)
                 except:
+                    logger.exception(traceback.format_exc())
                     return jsonify({'success': False, 'error': 'Song not found or invalid URL'}), 400
             else:
                 track_name = data.get('name')
