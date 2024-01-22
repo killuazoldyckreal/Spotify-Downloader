@@ -71,8 +71,8 @@ def downloading():
                 baseurl = 'https://api.fabdl.com/spotify/get?url='
                 try:
                     results = sp.track(track_id)
-                    song_url = "https://open.spotify.com/track/" + track_id
-                    encodedurl = quote(song_url)
+                    song_url = """https%3A%2F%2Fopen.spotify.com%2Ftrack%2F""" + track_id
+                    #encodedurl = quote(song_url)
                     url = baseurl + song_url
                     app.logger.error(url)
                     audiobytes, filename = get_mp3(url)

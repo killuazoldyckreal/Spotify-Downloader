@@ -153,7 +153,7 @@ def get_mp3(url):
     data = response.json()
     gid = data["result"]["gid"]
     tid = data["result"]["id"]
-    qtid = quote(tid)
+    #qtid = quote(tid)
     headers2 = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
         "Accept": "application/json, text/plain, */*",
@@ -169,7 +169,7 @@ def get_mp3(url):
         "Sec-GPC": "1",
         "TE": "trailers"
     }
-    url2 = f"https://api.fabdl.com/spotify/mp3-convert-task/{gid}/{qtid}"
+    url2 = f"https://api.fabdl.com/spotify/mp3-convert-task/{gid}/{tid}"
     response2 = requests.get(url2, headers=headers2)
     if response2.ok:
         data2 = response2.json()
