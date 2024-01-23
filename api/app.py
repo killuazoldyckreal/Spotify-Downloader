@@ -71,55 +71,55 @@ def downloading():
             return jsonify({'success': False, 'error': 'Invalid Referer'}), 403
         if csrf_token and csrf.validate_csrf(csrf_token):
             if request.is_json:
-            data = request.get_json()
-            baseurl = 'https://api.fabdl.com/spotify/get?url='
-            if 'track_id' in data:
-                track_id = data.get('track_id')
-                baseurl = 'https://api.fabdl.com/spotify/get?url=https://open.spotify.com/track/'
-                try:
-                    results = sp.track(track_id)
-                    url = baseurl + track_id
+                data = request.get_json()
+                baseurl = 'https://api.fabdl.com/spotify/get?url='
+                if 'track_id' in data:
+                    track_id = data.get('track_id')
+                    baseurl = 'https://api.fabdl.com/spotify/get?url=https://open.spotify.com/track/'
+                    try:
+                        results = sp.track(track_id)
+                        url = baseurl + track_id
+                        audiobytes, filename = get_mp3(url)
+                    except:
+                        logger.exception(traceback.format_exc())
+                        return jsonify({'success': False, 'error': 'Song not found or invalid URL'}), 400
+                else:
+                    track_name = data.get('name')
+                    try:
+                        results = sp.search(q=track_name, type='track', limit=1)['tracks']['items'][0]
+                    except:
+                        logger.exception(traceback.format_exc())
+                        return jsonify({'success': False, 'error': 'Song not found'}), 400
+                    url = baseurl + results['id']
                     audiobytes, filename = get_mp3(url)
-                except:
-                    logger.exception(traceback.format_exc())
-                    return jsonify({'success': False, 'error': 'Song not found or invalid URL'}), 400
-            else:
-                track_name = data.get('name')
-                try:
-                    results = sp.search(q=track_name, type='track', limit=1)['tracks']['items'][0]
-                except:
-                    logger.exception(traceback.format_exc())
+                if not audiobytes:
                     return jsonify({'success': False, 'error': 'Song not found'}), 400
-                url = baseurl + results['id']
-                audiobytes, filename = get_mp3(url)
-            if not audiobytes:
-                return jsonify({'success': False, 'error': 'Song not found'}), 400
-            track_name = results['name']
-            album_name = results['album']['name']
-            release_date = results['album']['release_date']
-            artists = [artist['name'] for artist in results['artists']]
-            album_artists = [artist['name'] for artist in results['album']['artists']]
-            genres = sp.artist(results['artists'][0]['id'])['genres']
-            cover_art_url = results['album']['images'][0]['url']
-            mdata = { 
-                'track_name': track_name,
-                'album_name': album_name,
-                'release_date': release_date,
-                'artists': artists,
-                'album_artists': album_artists,
-                'genres': genres,
-                'cover_art_url': cover_art_url
-            }
-            filelike = BytesIO(audiobytes)
-            merged_file = add_mdata(filelike, mdata)
-            token = secrets.token_hex(12)
-            try:
-                dropbox_path = f"/songs/{filename}"
-                file_url, direct_url = upload_file(merged_file, dropbox_path)
-                active_files[token] = dropbox_path
-                return jsonify({'success': True, 'url': direct_url, 'filename' : filename, 'dkey' : token}), 200
-            except Exception as e:
-                return jsonify({'success': False, 'error': traceback.format_exc()}), 400
+                track_name = results['name']
+                album_name = results['album']['name']
+                release_date = results['album']['release_date']
+                artists = [artist['name'] for artist in results['artists']]
+                album_artists = [artist['name'] for artist in results['album']['artists']]
+                genres = sp.artist(results['artists'][0]['id'])['genres']
+                cover_art_url = results['album']['images'][0]['url']
+                mdata = { 
+                    'track_name': track_name,
+                    'album_name': album_name,
+                    'release_date': release_date,
+                    'artists': artists,
+                    'album_artists': album_artists,
+                    'genres': genres,
+                    'cover_art_url': cover_art_url
+                }
+                filelike = BytesIO(audiobytes)
+                merged_file = add_mdata(filelike, mdata)
+                token = secrets.token_hex(12)
+                try:
+                    dropbox_path = f"/songs/{filename}"
+                    file_url, direct_url = upload_file(merged_file, dropbox_path)
+                    active_files[token] = dropbox_path
+                    return jsonify({'success': True, 'url': direct_url, 'filename' : filename, 'dkey' : token}), 200
+                except Exception as e:
+                    return jsonify({'success': False, 'error': traceback.format_exc()}), 400
             else:
                 return render_template('home.html')
         else:
