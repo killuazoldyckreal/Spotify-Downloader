@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, jsonify
 import os, requests, json, traceback, secrets
-from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import CSRFProtect, generate_csrf
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_cors import CORS
@@ -55,7 +55,7 @@ def deletingfile():
 
 @app.route('/')
 def home():
-    csrf_token = csrf.generate_csrf()
+    csrf_token = generate_csrf()
     return render_template('home.html', csrf_token=csrf_token)
 
 @app.route('/download', methods=['HEAD','GET','POST'])
