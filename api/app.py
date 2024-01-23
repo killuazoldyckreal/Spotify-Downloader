@@ -80,7 +80,15 @@ def deletingfile():
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    token_key=None
+    field_name = _get_config(
+        token_key,
+        "WTF_CSRF_FIELD_NAME",
+        "csrf_token",
+        message="A field name is required to use CSRF.",
+    )
+    csrf_token = session[field_name]
+    return render_template('home.html', csrf_token = csrf_token)
 
 @app.route('/download', methods=['HEAD','GET','POST'])
 @limiter.limit("5 per minute")
