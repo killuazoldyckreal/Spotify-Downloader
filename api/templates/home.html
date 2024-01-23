@@ -173,9 +173,9 @@
                 }
                 else {
                     if (abortController) {
+                        hideProgress();
                         abortController.abort();
                     }
-                    hideProgress();
                     return;
                 }
                 var urlInputValue = document.getElementById("urlInput").value;
@@ -187,8 +187,8 @@
                 const spotifyUrl = urlInputValue.trim();
                 const match = spotifyUrl.match(/\/track\/(\w+)/);
                 if (spotifyUrl.length < 1) {
-                    alert('Invalid Input');
                     hideProgress();
+                    alert('Invalid Input');
                     return;
                 }
                 document.getElementById("downloadButton").value = "Cancel download";
