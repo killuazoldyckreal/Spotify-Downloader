@@ -10,7 +10,6 @@ from helper import *
 from io import BytesIO
 import dropbox
 from itsdangerous import URLSafeTimedSerializer
-import hmac
 
 active_files = {}
 app = Flask(__name__)
@@ -60,7 +59,7 @@ def validate_csrf(app, data, secret_key=None, time_limit=None, token_key=None):
     app.logger.error(f"CSRF Token (Browser): {repr(token)}")
     app.logger.error(f"CSRF Token (Server): {session[field_name].hex()}")
     app.logger.error(f"CSRF Token (Browser): {token.hex()}")
-    if not hmac.compare_digest(session[field_name], token):
+    if not secrets.compare_digest(session[field_name], token):
         raise ValidationError("The CSRF tokens do not match.")
 
 @app.route('/deletefile', methods=['POST'])
