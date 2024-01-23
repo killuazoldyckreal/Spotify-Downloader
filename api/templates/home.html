@@ -203,7 +203,9 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: jsonData})
+                body: jsonData,
+                signal: abortController.signal
+                })
                 .then(response => {
                     if (!response.ok) {
                         hideProgress();
@@ -219,7 +221,7 @@
                         progressBardiv.style.display = "flex";
                         progressBar.style.width = "0%";
                         displayMessage(progressText, "Downloading song...", 3000);
-                        return fetch(audioUrl, { method: 'GET' })
+                        return fetch(audioUrl, { method: 'GET', signal: abortController.signal})
                         .then(audioResponse => {
                             if (!audioResponse.ok) {
                                 throw new Error('Audio download failed');
@@ -246,7 +248,11 @@
                                     document.body.removeChild(downloadLink);
                                     return;
                                 }
-
+                                if (abortController.signal.aborted) {
+                                    hideProgress();
+                                    deletefile(dkey);
+                                    return;
+                                }
                                 audioDownloadedSize += result.value.length || 0;
                                 const audioPercentComplete = Math.round((audioDownloadedSize / audioTotalSize) * 100);
                                 progressBar.style.width = audioPercentComplete + '%';
