@@ -40,7 +40,7 @@ def _get_config(
 
     return value
 
-def validate_csrf(data, secret_key=None, time_limit=None, token_key=None):
+def validate_csrf(app, data, secret_key=None, time_limit=None, token_key=None):
     secret_key = _get_config(
         secret_key,
         "WTF_CSRF_SECRET_KEY",
@@ -68,7 +68,7 @@ def deletingfile():
         referer = request.headers.get('Referer')
         if not referer or 'https://spotifydownloader-killua.onrender.com' not in referer:
             return jsonify({'success': False, 'error': 'Invalid Referer'}), 403
-        if csrf_token and validate_csrf(csrf_token):
+        if csrf_token and validate_csrf(app, csrf_token):
             if request.is_json:
                 data = request.get_json()
                 if 'dkey' in data and data['dkey'] in active_files:
@@ -105,7 +105,7 @@ def downloading():
         referer = request.headers.get('Referer')
         if not referer or 'https://spotifydownloader-killua.onrender.com/' not in referer:
             return jsonify({'success': False, 'error': 'Invalid Referer'}), 403
-        if csrf_token and validate_csrf(csrf_token):
+        if csrf_token and validate_csrf(app, csrf_token):
             if request.is_json:
                 data = request.get_json()
                 baseurl = 'https://api.fabdl.com/spotify/get?url='
