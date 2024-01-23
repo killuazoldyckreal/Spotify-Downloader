@@ -2,11 +2,11 @@ from mutagen.id3 import ID3, APIC, TIT2, TPE1, TALB, TDRC, TCON, TPE2, USLT
 from PIL import Image
 from io import BytesIO
 import requests
-import os
+import os, secrets
 from urllib.parse import urlparse
 from spotipy.cache_handler import CacheHandler
 import dropbox
-from bs4 import BeautifulSoup
+
 api_key=os.environ.get('API_KEY')
 ACCESS_KEY = os.environ.get('DROPBOX_KEY')
 ACCESS_SECRET = os.environ.get('DROPBOX_SECRET')

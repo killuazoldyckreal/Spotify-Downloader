@@ -1,37 +1,55 @@
 from flask import Flask, request, render_template, jsonify
 import os, requests, json, traceback, secrets
+from flask_wtf.csrf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_cors import CORS
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from helper import *
-from flask_cors import CORS
 from io import BytesIO
 import dropbox
 
 active_files = {}
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+secret_key = os.urandom(24)
+app.config['SECRET_KEY'] = secret_key
 client_id=os.environ.get('CLIENT_ID')
 client_secret=os.environ.get('CLIENT_SECRET')
+limiter = Limiter(
+    app,
+    key_func=get_remote_address,
+    storage_uri='memory://'
+)
 
+# Set up CORS
+CORS(app, origins=["https://spotifydownloader-killua.onrender.com"], methods=["HEAD", "GET", "POST"])
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret, cache_handler=CustomCacheHandler()))
 
 @app.route('/deletefile', methods=['POST'])
 def deletingfile():
     if request.method == 'POST':
-        if request.is_json:
-            data = request.get_json()
-            if 'dkey' in data and data['dkey'] in active_files:
-                try:
-                    dropbox_path = active_files[data['dkey']]
-                    delete_file(dropbox_path)
-                except:
-                    app.logger.exception(traceback.format_exc())
-                    return jsonify({'success': False}), 400
-                return jsonify({'success': True}), 200
+        csrf_token = request.headers.get('X-CSRFToken')
+        referer = request.headers.get('Referer')
+        if not referer or 'https://spotifydownloader-killua.onrender.com' not in referer:
+            return jsonify({'success': False, 'error': 'Invalid Referer'}), 403
+        if csrf_token and csrf.validate_csrf(csrf_token):
+            if request.is_json:
+                data = request.get_json()
+                if 'dkey' in data and data['dkey'] in active_files:
+                    try:
+                        dropbox_path = active_files[data['dkey']]
+                        delete_file(dropbox_path)
+                    except:
+                        app.logger.exception(traceback.format_exc())
+                        return jsonify({'success': False}), 400
+                    return jsonify({'success': True}), 200
+                else:
+                    return jsonify({'success': False, 'error': 'Key Mismatch or File does not exist'}), 400
             else:
-                return jsonify({'success': False, 'error': 'Key Mismatch or File does not exist'}), 400
+                return jsonify({'success': False, 'error': 'Data must be in json format'}), 400
         else:
-            return jsonify({'success': False, 'error': 'Data must be in json format'}), 400
+            return jsonify({'success': False, 'error': 'CSRF token validation failed'}), 403
     else:
         message = f'This is a {request.method} request on /download'
         return jsonify({'message': message})
@@ -41,12 +59,18 @@ def home():
     return render_template('home.html')
 
 @app.route('/download', methods=['HEAD','GET','POST'])
+@limiter.limit("5 per minute")
 def downloading():
     app.logger.debug('Received request to /download with method: %s', request.method)
     if request.method == 'GET':
         return jsonify({'message': 'This is a GET request on /download'})
     elif request.method == 'POST':
-        if request.is_json:
+        csrf_token = request.headers.get('X-CSRFToken')
+        referer = request.headers.get('Referer')
+        if not referer or 'https://spotifydownloader-killua.onrender.com' not in referer:
+            return jsonify({'success': False, 'error': 'Invalid Referer'}), 403
+        if csrf_token and csrf.validate_csrf(csrf_token):
+            if request.is_json:
             data = request.get_json()
             baseurl = 'https://api.fabdl.com/spotify/get?url='
             if 'track_id' in data:
@@ -96,8 +120,10 @@ def downloading():
                 return jsonify({'success': True, 'url': direct_url, 'filename' : filename, 'dkey' : token}), 200
             except Exception as e:
                 return jsonify({'success': False, 'error': traceback.format_exc()}), 400
+            else:
+                return render_template('home.html')
         else:
-            return render_template('home.html')
+            return jsonify({'success': False, 'error': 'CSRF token validation failed'}), 403
     else:
         return render_template('home.html')
 

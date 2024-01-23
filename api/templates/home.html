@@ -10,6 +10,7 @@
     <meta property="og:image:height" content="630">
     <meta property="og:url" content="https://spotifydownloader-killua.onrender.com">
     <meta property="og:type" content="website">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <title>Song Downloader</title>
     <style>
@@ -110,6 +111,15 @@
     <script>
         let isDownloading = false;
         let abortController;
+        function getCSRFToken() {
+            var csrfTokenMeta = document.querySelector('meta[name=csrf-token]');
+            if (csrfTokenMeta) {
+                return csrfTokenMeta.content;
+            } else {
+                console.error('CSRF token meta tag not found.');
+                return null;
+            }
+        }
         function hideProgress() {
             setTimeout(function() {
                 document.getElementById("progressBar").style.display = "none";
@@ -201,7 +211,8 @@
                 displayMessage(progressText, "Fetching song...", 2000);
                 fetch(url, { method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
                 },
                 body: jsonData,
                 signal: abortController.signal
@@ -221,7 +232,11 @@
                         progressBardiv.style.display = "flex";
                         progressBar.style.width = "0%";
                         displayMessage(progressText, "Downloading song...", 3000);
-                        return fetch(audioUrl, { method: 'GET', signal: abortController.signal})
+                        return fetch(audioUrl, { method: 'GET',
+                        headers: {
+                            'X-CSRFToken': getCSRFToken()
+                        }, 
+                        signal: abortController.signal})
                         .then(audioResponse => {
                             if (!audioResponse.ok) {
                                 throw new Error('Audio download failed');

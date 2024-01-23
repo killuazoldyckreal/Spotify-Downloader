@@ -1,8 +1,9 @@
 spotipy
 Flask
-Flask-Cors
 mutagen
 requests
 Pillow
 dropbox
-bs4
+Flask-CORS
+Flask-Limiter
+Flask-WTF
