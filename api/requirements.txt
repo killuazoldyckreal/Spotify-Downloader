@@ -7,3 +7,5 @@ dropbox
 Flask-CORS
 Flask-Limiter
 Flask-WTF
+python-dotenv
+gunicorn
