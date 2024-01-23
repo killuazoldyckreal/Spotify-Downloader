@@ -56,6 +56,7 @@ def deletingfile():
 @app.route('/')
 def home():
     csrf_token = generate_csrf()
+    app.logger.error(csrf_token)
     return render_template('home.html', csrf_token=csrf_token)
 
 @app.route('/download', methods=['HEAD','GET','POST'])
