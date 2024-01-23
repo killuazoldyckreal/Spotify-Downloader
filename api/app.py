@@ -56,8 +56,12 @@ def validate_csrf(app, data, secret_key=None, time_limit=None, token_key=None):
     s = URLSafeTimedSerializer(secret_key, salt="wtf-csrf-token")
     token = s.loads(data, max_age=time_limit)
     sessiontoken = session[field_name]
-    if not sessiontoken==token:
-        raise ValidationError("The CSRF tokens do not match.")
+    app.logger.error(token)
+    app.logger.error(sessiontoken)
+    if sessiontoken==token:
+        return True
+    else:
+        return False
 
 @app.route('/deletefile', methods=['POST'])
 def deletingfile():
