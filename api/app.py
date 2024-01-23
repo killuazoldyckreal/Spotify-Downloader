@@ -1,6 +1,6 @@
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify, session, current_app
 import os, requests, json, traceback, secrets
-from flask_wtf.csrf import CSRFProtect, generate_csrf, validate_csrf
+from flask_wtf.csrf import CSRFProtect, generate_csrf
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_cors import CORS
@@ -26,6 +26,29 @@ limiter = Limiter(
 
 CORS(app, origins=["https://spotifydownloader-killua.onrender.com"], methods=["HEAD", "GET", "POST"])
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret, cache_handler=CustomCacheHandler()))
+
+def _get_config(
+    value, config_name, default=None, required=True, message="CSRF is not configured."
+):
+    if value is None:
+        value = current_app.config.get(config_name, default)
+
+    if required and value is None:
+        raise RuntimeError(message)
+
+    return value
+
+def validate_csrf(data, secret_key=None, time_limit=None, token_key=None):
+    field_name = _get_config(
+        token_key,
+        "WTF_CSRF_FIELD_NAME",
+        "csrf_token",
+        message="A field name is required to use CSRF.",
+    )
+    app.logger.error(f"CSRF Token (Server): {session[field_name]}")
+    app.logger.error(f"CSRF Token (Browser): {token}")
+    if not hmac.compare_digest(session[field_name], token):
+        raise ValidationError("The CSRF tokens do not match.")
 
 @app.route('/deletefile', methods=['POST'])
 def deletingfile():
@@ -57,8 +80,7 @@ def deletingfile():
 
 @app.route('/')
 def home():
-    csrf_token = generate_csrf()
-    return render_template('home.html', csrf_token=csrf_token)
+    return render_template('home.html')
 
 @app.route('/download', methods=['HEAD','GET','POST'])
 @limiter.limit("5 per minute")
@@ -66,9 +88,7 @@ def downloading():
     app.logger.debug('Received request to /download with method: %s', request.method)
     if request.method == 'GET':
         return jsonify({'message': 'This is a GET request on /download'})
-    elif request.method == 'POST':
-        csrf_token_server = generate_csrf()  # Assuming you have a function to generate CSRF tokens
-        app.logger.error(f"CSRF Token (Server): {csrf_token_server}")
+    elif request.method == 'POST': # Assuming you have a function to generate CSRF tokens
         csrf_token = request.headers.get('X-CSRFToken')
         referer = request.headers.get('Referer')
         if not referer or 'https://spotifydownloader-killua.onrender.com/' not in referer:
@@ -127,7 +147,6 @@ def downloading():
             else:
                 return render_template('home.html')
         else:
-            app.logger.error(f"CSRF Token (Browser): {csrf_token}")
             return jsonify({'success': False, 'error': 'CSRF token validation failed'}), 403
     else:
         return render_template('home.html')

@@ -12,6 +12,14 @@ ACCESS_KEY = os.environ.get('DROPBOX_KEY')
 ACCESS_SECRET = os.environ.get('DROPBOX_SECRET')
 ACCESS_TOKEN = os.environ.get('DROPBOX_RTOKEN')
 
+class ValidationError(ValueError):
+    """
+    Raised when a validator fails to validate its input.
+    """
+
+    def __init__(self, message="", *args, **kwargs):
+        ValueError.__init__(self, message, *args, **kwargs)
+        
 class CustomCacheHandler(CacheHandler):
     def __init__(self):
         self.cache_path = None
