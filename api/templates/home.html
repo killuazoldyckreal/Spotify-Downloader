@@ -233,10 +233,7 @@
                         progressBardiv.style.display = "flex";
                         progressBar.style.width = "0%";
                         displayMessage(progressText, "Downloading song...", 3000);
-                        return fetch(audioUrl, { method: 'GET',
-                        headers: {
-                            'X-CSRFToken': getCSRFToken()
-                        }, 
+                        return fetch(audioUrl, { method: 'GET', 
                         signal: abortController.signal})
                         .then(audioResponse => {
                             if (!audioResponse.ok) {
