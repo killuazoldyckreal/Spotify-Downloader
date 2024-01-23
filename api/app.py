@@ -16,6 +16,7 @@ secret_key = os.urandom(24)
 app.config['SECRET_KEY'] = secret_key
 client_id=os.environ.get('CLIENT_ID')
 client_secret=os.environ.get('CLIENT_SECRET')
+csrf = CSRFProtect(app)
 limiter = Limiter(
     app,
     storage_uri='memory://'
