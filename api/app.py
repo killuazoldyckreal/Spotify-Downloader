@@ -26,7 +26,7 @@ limiter = Limiter(
     storage_uri='memory://'
 )
 
-CORS(app, resources={r"/*": {"origins": ["https://spotifydownloader-killua.onrender.com", "https://dl.dropboxusercontent.com"]}})
+CORS(app, resources={r"/*": {"origins": "*"}})
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret, cache_handler=CustomCacheHandler()))
 
 def _get_config(
