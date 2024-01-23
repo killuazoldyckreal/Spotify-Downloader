@@ -40,6 +40,12 @@ def _get_config(
     return value
 
 def validate_csrf(data, secret_key=None, time_limit=None, token_key=None):
+    secret_key = _get_config(
+        secret_key,
+        "WTF_CSRF_SECRET_KEY",
+        current_app.secret_key,
+        message="A secret key is required to use CSRF.",
+    )
     field_name = _get_config(
         token_key,
         "WTF_CSRF_FIELD_NAME",
