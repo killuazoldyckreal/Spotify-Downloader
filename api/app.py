@@ -127,7 +127,7 @@ def downloading():
             else:
                 return render_template('home.html')
         else:
-            print(f"CSRF Token (Browser): {csrf_token}")
+            app.logger.error(f"CSRF Token (Browser): {csrf_token}")
             return jsonify({'success': False, 'error': 'CSRF token validation failed'}), 403
     else:
         return render_template('home.html')
