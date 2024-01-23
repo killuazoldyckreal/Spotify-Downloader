@@ -17,6 +17,7 @@ secret_key = os.urandom(24)
 app.config['SECRET_KEY'] = secret_key
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+app.config['REQUEST_METHODS'] = ['GET', 'POST', 'HEAD', 'OPTIONS']
 client_id=os.environ.get('CLIENT_ID')
 client_secret=os.environ.get('CLIENT_SECRET')
 csrf = CSRFProtect(app)
@@ -25,7 +26,7 @@ limiter = Limiter(
     storage_uri='memory://'
 )
 
-CORS(app, resources={r"/*": {"origins": "https://your-specific-origin.com"}})
+CORS(app, resources={r"/*": {"origins": "https://spotifydownloader-killua.onrender.com", "https://dl.dropboxusercontent.com"}})
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret, cache_handler=CustomCacheHandler()))
 
 def _get_config(
