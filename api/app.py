@@ -56,8 +56,10 @@ def validate_csrf(app, data, secret_key=None, time_limit=None, token_key=None):
     time_limit = _get_config(time_limit, "WTF_CSRF_TIME_LIMIT", 3600, required=False)
     s = URLSafeTimedSerializer(secret_key, salt="wtf-csrf-token")
     token = s.loads(data, max_age=time_limit)
-    app.logger.error(f"CSRF Token (Server): {type(session[field_name])}")
-    app.logger.error(f"CSRF Token (Browser): {type(token)}")
+    app.logger.error(f"CSRF Token (Server): {repr(session[field_name])}")
+    app.logger.error(f"CSRF Token (Browser): {repr(token)}")
+    app.logger.error(f"CSRF Token (Server): {session[field_name].hex()}")
+    app.logger.error(f"CSRF Token (Browser): {token.hex()}")
     if not hmac.compare_digest(session[field_name], token):
         raise ValidationError("The CSRF tokens do not match.")
 
