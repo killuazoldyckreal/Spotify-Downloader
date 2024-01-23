@@ -118,14 +118,14 @@ def downloading():
                         url = baseurl + track_id
                         audiobytes, filename = get_mp3(url)
                     except:
-                        logger.exception(traceback.format_exc())
+                        app.logger.exception(traceback.format_exc())
                         return jsonify({'success': False, 'error': 'Song not found or invalid URL'}), 400
                 else:
                     track_name = data.get('name')
                     try:
                         results = sp.search(q=track_name, type='track', limit=1)['tracks']['items'][0]
                     except:
-                        logger.exception(traceback.format_exc())
+                        app.logger.exception(traceback.format_exc())
                         return jsonify({'success': False, 'error': 'Song not found'}), 400
                     url = baseurl + results['id']
                     audiobytes, filename = get_mp3(url)
