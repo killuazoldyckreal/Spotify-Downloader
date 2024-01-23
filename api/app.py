@@ -25,7 +25,7 @@ limiter = Limiter(
     storage_uri='memory://'
 )
 
-CORS(app, origins="*", methods=["HEAD", "GET", "POST", "OPTIONS"])
+CORS(app, resources={r"/*": {"origins": "https://your-specific-origin.com"}})
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret, cache_handler=CustomCacheHandler()))
 
 def _get_config(
