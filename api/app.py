@@ -9,6 +9,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 from helper import *
 from io import BytesIO
 import dropbox
+from itsdangerous import URLSafeTimedSerializer
 
 active_files = {}
 app = Flask(__name__)
@@ -45,6 +46,9 @@ def validate_csrf(data, secret_key=None, time_limit=None, token_key=None):
         "csrf_token",
         message="A field name is required to use CSRF.",
     )
+    time_limit = _get_config(time_limit, "WTF_CSRF_TIME_LIMIT", 3600, required=False)
+    s = URLSafeTimedSerializer(secret_key, salt="wtf-csrf-token")
+    token = s.loads(data, max_age=time_limit)
     app.logger.error(f"CSRF Token (Server): {session[field_name]}")
     app.logger.error(f"CSRF Token (Browser): {token}")
     if not hmac.compare_digest(session[field_name], token):
