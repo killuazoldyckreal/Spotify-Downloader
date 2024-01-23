@@ -14,6 +14,8 @@ active_files = {}
 app = Flask(__name__)
 secret_key = os.urandom(24)
 app.config['SECRET_KEY'] = secret_key
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 client_id=os.environ.get('CLIENT_ID')
 client_secret=os.environ.get('CLIENT_SECRET')
 csrf = CSRFProtect(app)
@@ -56,7 +58,6 @@ def deletingfile():
 @app.route('/')
 def home():
     csrf_token = generate_csrf()
-    app.logger.error(csrf_token)
     return render_template('home.html', csrf_token=csrf_token)
 
 @app.route('/download', methods=['HEAD','GET','POST'])
