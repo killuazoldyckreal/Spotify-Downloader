@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, jsonify
 import os, requests, json, traceback, secrets
-from flask_wtf.csrf import CSRFProtect, generate_csrf
+from flask_wtf.csrf import CSRFProtect, generate_csrf, validate_csrf
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_cors import CORS
@@ -34,7 +34,7 @@ def deletingfile():
         referer = request.headers.get('Referer')
         if not referer or 'https://spotifydownloader-killua.onrender.com' not in referer:
             return jsonify({'success': False, 'error': 'Invalid Referer'}), 403
-        if csrf_token and csrf.validate_csrf(csrf_token):
+        if csrf_token and validate_csrf(csrf_token):
             if request.is_json:
                 data = request.get_json()
                 if 'dkey' in data and data['dkey'] in active_files:
@@ -71,7 +71,7 @@ def downloading():
         referer = request.headers.get('Referer')
         if not referer or 'https://spotifydownloader-killua.onrender.com/' not in referer:
             return jsonify({'success': False, 'error': 'Invalid Referer'}), 403
-        if csrf_token and csrf.validate_csrf(csrf_token):
+        if csrf_token and validate_csrf(csrf_token):
             if request.is_json:
                 data = request.get_json()
                 baseurl = 'https://api.fabdl.com/spotify/get?url='
