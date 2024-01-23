@@ -144,7 +144,8 @@
             fetch('https://spotifydownloader-killua.onrender.com:443/deletefile', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
                 },
                 body: jsonData2
             })

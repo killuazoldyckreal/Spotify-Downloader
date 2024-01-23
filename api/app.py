@@ -55,7 +55,8 @@ def deletingfile():
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    csrf_token = csrf.generate_csrf()
+    return render_template('home.html', csrf_token=csrf_token)
 
 @app.route('/download', methods=['HEAD','GET','POST'])
 @limiter.limit("5 per minute")
