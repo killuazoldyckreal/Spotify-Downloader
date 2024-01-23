@@ -25,7 +25,7 @@ limiter = Limiter(
     storage_uri='memory://'
 )
 
-CORS(app, origins=["https://spotifydownloader-killua.onrender.com"], methods=["HEAD", "GET", "POST"])
+CORS(app, origins=["https://spotifydownloader-killua.onrender.com", "https://dl.dropboxusercontent.com"], methods=["HEAD", "GET", "POST", "OPTIONS"])
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret, cache_handler=CustomCacheHandler()))
 
 def _get_config(
@@ -56,8 +56,6 @@ def validate_csrf(app, data, secret_key=None, time_limit=None, token_key=None):
     s = URLSafeTimedSerializer(secret_key, salt="wtf-csrf-token")
     token = s.loads(data, max_age=time_limit)
     sessiontoken = session[field_name]
-    app.logger.error(token)
-    app.logger.error(sessiontoken)
     if sessiontoken==token:
         return True
     else:
