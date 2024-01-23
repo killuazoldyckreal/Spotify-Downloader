@@ -10,16 +10,20 @@ from helper import *
 from io import BytesIO
 import dropbox
 from itsdangerous import URLSafeTimedSerializer
+from dotenv import load_dotenv
 
+load_dotenv()
 active_files = {}
 app = Flask(__name__)
+env_config = os.getenv("PROD_APP_SETTINGS", "config.DevelopmentConfig")
+app.config.from_object(env_config)
 secret_key = os.urandom(24)
 app.config['SECRET_KEY'] = secret_key
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 app.config['REQUEST_METHODS'] = ['GET', 'POST', 'HEAD', 'OPTIONS']
-client_id=os.environ.get('CLIENT_ID')
-client_secret=os.environ.get('CLIENT_SECRET')
+client_id=os.getenv('CLIENT_ID')
+client_secret=os.getenv('CLIENT_SECRET')
 csrf = CSRFProtect(app)
 limiter = Limiter(
     app,

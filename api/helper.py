@@ -6,11 +6,13 @@ import os, secrets
 from urllib.parse import urlparse
 from spotipy.cache_handler import CacheHandler
 import dropbox
+from dotenv import load_dotenv
 
-api_key=os.environ.get('API_KEY')
-ACCESS_KEY = os.environ.get('DROPBOX_KEY')
-ACCESS_SECRET = os.environ.get('DROPBOX_SECRET')
-ACCESS_TOKEN = os.environ.get('DROPBOX_RTOKEN')
+load_dotenv()
+api_key=os.getenv('API_KEY')
+ACCESS_KEY = os.getenv('DROPBOX_KEY')
+ACCESS_SECRET = os.getenv('DROPBOX_SECRET')
+ACCESS_TOKEN = os.getenv('DROPBOX_RTOKEN')
 
 class ValidationError(ValueError):
     """
