@@ -22,7 +22,6 @@ limiter = Limiter(
     storage_uri='memory://'
 )
 
-# Set up CORS
 CORS(app, origins=["https://spotifydownloader-killua.onrender.com"], methods=["HEAD", "GET", "POST"])
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret, cache_handler=CustomCacheHandler()))
 
