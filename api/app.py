@@ -104,6 +104,7 @@ def downloading():
     elif request.method == 'POST': # Assuming you have a function to generate CSRF tokens
         csrf_token = request.headers.get('X-CSRFToken')
         referer = request.headers.get('Referer')
+        app.logger.error(csrf_token)
         if not referer or 'https://spotifydownloader-killua.onrender.com/' not in referer:
             return jsonify({'success': False, 'error': 'Invalid Referer'}), 403
         if csrf_token and validate_csrf(app, csrf_token):
