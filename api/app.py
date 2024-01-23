@@ -67,6 +67,8 @@ def downloading():
     if request.method == 'GET':
         return jsonify({'message': 'This is a GET request on /download'})
     elif request.method == 'POST':
+        csrf_token_server = generate_csrf()  # Assuming you have a function to generate CSRF tokens
+        app.logger.error(f"CSRF Token (Server): {csrf_token_server}")
         csrf_token = request.headers.get('X-CSRFToken')
         referer = request.headers.get('Referer')
         if not referer or 'https://spotifydownloader-killua.onrender.com/' not in referer:
@@ -125,6 +127,7 @@ def downloading():
             else:
                 return render_template('home.html')
         else:
+            print(f"CSRF Token (Browser): {csrf_token}")
             return jsonify({'success': False, 'error': 'CSRF token validation failed'}), 403
     else:
         return render_template('home.html')
