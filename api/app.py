@@ -69,7 +69,7 @@ def downloading():
     elif request.method == 'POST':
         csrf_token = request.headers.get('X-CSRFToken')
         referer = request.headers.get('Referer')
-        if not referer or 'https://spotifydownloader-killua.onrender.com' not in referer:
+        if not referer or 'https://spotifydownloader-killua.onrender.com/' not in referer:
             return jsonify({'success': False, 'error': 'Invalid Referer'}), 403
         if csrf_token and csrf.validate_csrf(csrf_token):
             if request.is_json:
@@ -130,4 +130,4 @@ def downloading():
         return render_template('home.html')
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=443)
+    app.run(host='0.0.0.0', port=443, debug=True)
