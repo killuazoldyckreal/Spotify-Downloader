@@ -162,6 +162,18 @@ def get_mp3(url):
         response2 = requests.get(url2)
         if response2.ok:
             data2 = response2.json()
+            statusid = data2["result"]["status"]
+            if statusid!=3:
+                baseurl = "https://api.spotifydown.com/download/"+tid
+                response3 = requests.get(baseurl)
+                data = response3.json()
+                if data["success"]:
+                    download_url = data["link"]
+                    response4 = requests.get(download_url)
+                    if response4.ok:
+                        audiobytes = response4.content
+                        return audiobytes, filename
+                return None, None
             download_url = "https://api.fabdl.com" + data2["result"]["download_url"]
             response3 = requests.get(download_url)
             if response3.ok:
