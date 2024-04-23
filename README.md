@@ -1,4 +1,4 @@
-# Spotify Playlist Downloader
+# Spotify Downloader
 
 This Python-based web application allows users to download songs from Spotify by providing a song URL or name query. It fetches songs from Spotify using API services, adds metadata to the songs, and delivers them in .mp3 format.
 
