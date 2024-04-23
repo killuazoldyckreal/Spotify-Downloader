@@ -4,7 +4,7 @@ This Python-based web application allows users to download songs from Spotify by
 
 ## What's New in v1.3
 
-In version 1.3 of the Spotify Playlist Downloader, we've introduced several significant enhancements and features:
+In version 1.3 of the Spotify Downloader, we've introduced several significant enhancements and features:
 
 [Demo](https://spotifydownloader-killua.onrender.com)
 
