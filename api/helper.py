@@ -9,15 +9,12 @@ import dropbox
 from dotenv import load_dotenv
 import logging
 import sys
-console_handler = logging.StreamHandler(sys.stdout)
+
 load_dotenv()
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[console_handler],
-    datefmt="%Y-%m-%d %H:%M:%S",
-    exc_info=True,
-)
+logging.basicConfig(level=logging.INFO, 
+                    format='%(asctime)s - %(levelname)s - %(message)s', 
+                    stream=sys.stdout,
+                    datefmt='%Y-%m-%d %H:%M:%S')
 
 api_key = os.getenv("API_KEY")
 ACCESS_KEY = os.getenv("DROPBOX_KEY")
