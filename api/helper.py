@@ -7,8 +7,12 @@ from urllib.parse import urlparse
 from spotipy.cache_handler import CacheHandler
 import dropbox
 from dotenv import load_dotenv
+import logging
 
 load_dotenv()
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+console = logging.StreamHandler()
+console.setLevel(logging.ERROR)
 api_key=os.getenv('API_KEY')
 ACCESS_KEY = os.getenv('DROPBOX_KEY')
 ACCESS_SECRET = os.getenv('DROPBOX_SECRET')
