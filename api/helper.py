@@ -186,9 +186,9 @@ def upload_file(f, dropbox_path):
         )
         return direct_link, direct_link2
     except Exception as e:
-        logger.info(ACCESS_KEY)
-        logger.info(ACCESS_SECRET)
-        logger.info(ACCESS_TOKEN)
+        logging.info(ACCESS_KEY)
+        logging.info(ACCESS_SECRET)
+        logging.info(ACCESS_TOKEN)
         logging.error(traceback.format_exc())
 
 
