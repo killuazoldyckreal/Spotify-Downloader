@@ -21,7 +21,6 @@ ACCESS_KEY = os.getenv("DROPBOX_KEY")
 ACCESS_SECRET = os.getenv("DROPBOX_SECRET")
 ACCESS_TOKEN = os.getenv("DROPBOX_RTOKEN")
 
-
 class ValidationError(ValueError):
     """
     Raised when a validator fails to validate its input.
@@ -98,7 +97,7 @@ def search_track(track_name, artist_name):
         else:
             return None
     except Exception as e:
-        logging.error("An error occurred: %s", e, exc_info=True)
+        logging.error(traceback.format_exc())
         return None
 
 
@@ -123,7 +122,7 @@ def get_lyrics(track_id):
         else:
             return None
     except Exception as e:
-        logging.error("An error occurred: %s", e, exc_info=True)
+        logging.error(traceback.format_exc())
         return None
 
 
@@ -150,7 +149,7 @@ def add_mdata(audio_file, metadata):
         audio_file.seek(0)
         return audio_file
     except Exception as e:
-        logging.error("An error occurred: %s", e, exc_info=True)
+        logging.error(traceback.format_exc())
         return None
 
 
@@ -186,9 +185,6 @@ def upload_file(f, dropbox_path):
         )
         return direct_link, direct_link2
     except Exception as e:
-        logging.info(ACCESS_KEY)
-        logging.info(ACCESS_SECRET)
-        logging.info(ACCESS_TOKEN)
         logging.error(traceback.format_exc())
 
 
@@ -201,7 +197,7 @@ def delete_file(dropbox_path):
         )
         dbx.files_delete(dropbox_path)
     except Exception as e:
-        logging.error("An error occurred: %s", e, exc_info=True)
+        logging.error(traceback.format_exc())
     return
 
 
@@ -252,5 +248,5 @@ def get_mp3(url):
         else:
             return None, None
     except Exception as e:
-        logging.error("An error occurred: %s", e, exc_info=True)
+        logging.error(traceback.format_exc())
         return None, None

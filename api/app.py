@@ -12,20 +12,17 @@ import dropbox
 from itsdangerous import URLSafeTimedSerializer
 from dotenv import load_dotenv
 import logging
-from logging.handlers import RotatingFileHandler
+import sys
 
 # Add this line to configure the logging format and level
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-
-# Create a rotating file handler to write logs to a file
-file_handler = RotatingFileHandler('app.log', maxBytes=1024*1024, backupCount=10)
-file_handler.setLevel(logging.DEBUG)
-file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+logging.basicConfig(level=logging.INFO, 
+                    format='%(asctime)s - %(levelname)s - %(message)s', 
+                    stream=sys.stdout,
+                    datefmt='%Y-%m-%d %H:%M:%S')
 
 load_dotenv()
 active_files = {}
 app = Flask(__name__)
-app.logger.addHandler(file_handler)
 env_config = os.getenv("PROD_APP_SETTINGS", "config.DevelopmentConfig")
 app.config.from_object(env_config)
 secret_key = os.urandom(24)
@@ -92,7 +89,7 @@ def deletingfile():
                         dropbox_path = active_files[data['dkey']]
                         delete_file(dropbox_path)
                     except:
-                        app.logger.exception(traceback.format_exc())
+                        logging.error(traceback.format_exc())
                         return jsonify({'success': False}), 400
                     return jsonify({'success': True}), 200
                 else:
@@ -132,14 +129,12 @@ def downloading():
                         url = baseurl + track_id
                         audiobytes, filename = get_mp3(url)
                     except:
-                        app.logger.exception(traceback.format_exc())
                         return jsonify({'success': False, 'error': 'Song not found or invalid URL'}), 400
                 else:
                     track_name = data.get('name')
                     try:
                         results = sp.search(q=track_name, type='track', limit=1)['tracks']['items'][0]
                     except:
-                        app.logger.exception(traceback.format_exc())
                         return jsonify({'success': False, 'error': 'Song not found'}), 400
                     url = baseurl + results['id']
                     audiobytes, filename = get_mp3(url)
@@ -170,7 +165,7 @@ def downloading():
                     active_files[token] = dropbox_path
                     return jsonify({'success': True, 'url': direct_url, 'filename' : filename, 'dkey' : token}), 200
                 except Exception as e:
-                    return jsonify({'success': False, 'error': traceback.format_exc()}), 400
+                    return jsonify({'success': False, 'error': 'Failed to fetch song from server'}), 400
             else:
                 return render_template('home.html')
         else:
