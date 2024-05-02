@@ -205,18 +205,10 @@ def get_mp3(url):
                             return None, None
                         if data["success"]:
                             download_url = data["link"]
-                            response4 = requests.get(download_url)
-                            if response4.ok:
-                                audiobytes = response4.content
-                                return audiobytes, filename
+                            return download_url, filename
                     return None, None
                 download_url = "https://api.fabdl.com" + data2["result"]["download_url"]
-                response3 = requests.get(download_url)
-                if response3.ok:
-                    audiobytes = response3.content
-                    return audiobytes, filename
-                else:
-                    return None, None
+                return download_url, filename
             else:
                 return None, None
         else:
