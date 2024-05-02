@@ -9,12 +9,13 @@ import dropbox
 from dotenv import load_dotenv
 import logging
 from logging import console
-
+import sys
+console_handler = logging.StreamHandler(sys.stdout)
 load_dotenv()
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[console],
+    handlers=[console_handler],
     datefmt="%Y-%m-%d %H:%M:%S",
     exc_info=True,
 )
