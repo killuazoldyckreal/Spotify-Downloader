@@ -11,10 +11,21 @@ from io import BytesIO
 import dropbox
 from itsdangerous import URLSafeTimedSerializer
 from dotenv import load_dotenv
+import logging
+from logging.handlers import RotatingFileHandler
+
+# Add this line to configure the logging format and level
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Create a rotating file handler to write logs to a file
+file_handler = RotatingFileHandler('app.log', maxBytes=1024*1024, backupCount=10)
+file_handler.setLevel(logging.DEBUG)
+file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
 
 load_dotenv()
 active_files = {}
 app = Flask(__name__)
+app.logger.addHandler(file_handler)
 env_config = os.getenv("PROD_APP_SETTINGS", "config.DevelopmentConfig")
 app.config.from_object(env_config)
 secret_key = os.urandom(24)
