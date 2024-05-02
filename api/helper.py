@@ -8,7 +8,6 @@ from spotipy.cache_handler import CacheHandler
 import dropbox
 from dotenv import load_dotenv
 import logging
-from logging import console
 import sys
 console_handler = logging.StreamHandler(sys.stdout)
 load_dotenv()
