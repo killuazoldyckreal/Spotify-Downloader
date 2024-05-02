@@ -1,5 +1,5 @@
 class Config:
-    DEBUG = False
+    DEBUG = True
     DEVELOPMENT = False
     CSRF_ENABLED = True
     ASSETS_DEBUG = False
