@@ -8,7 +8,7 @@ from spotipy.cache_handler import CacheHandler
 import dropbox
 from dotenv import load_dotenv
 import logging
-import sys
+import sys, traceback
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO, 
@@ -186,7 +186,10 @@ def upload_file(f, dropbox_path):
         )
         return direct_link, direct_link2
     except Exception as e:
-        logging.error("An error occurred: %s", e, exc_info=True)
+        logger.info(ACCESS_KEY)
+        logger.info(ACCESS_SECRET)
+        logger.info(ACCESS_TOKEN)
+        logging.error(traceback.format_exc())
 
 
 def delete_file(dropbox_path):
