@@ -185,7 +185,8 @@
                 let filename;
                 let dkey;
                 const spotifyUrl = urlInputValue.trim();
-                const match = spotifyUrl.match(/\/track\/(\w+)/);
+                const spotifyMatch = spotifyUrl.match(/\/track\/(\w+)/);
+                const youtubeMatch = spotifyUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|v\/|embed\/|user\/(?:[\w#]+\/)+))([^&#?\n]+)/);
                 if (spotifyUrl.length < 1) {
                     hideProgress();
                     alert('Invalid Input');
@@ -195,15 +196,21 @@
                 progressText.style.display = "inline";
                 let requestData;
                 displayMessage(progressText, "Preparing request...", 1000);
-                if (!match) {
+                if (spotifyMatch) {
+                    const trackId = spotifyMatch[1];
                     requestData = {
-                        'name': spotifyUrl
+                        'track_id': trackId
+                    };
+                }
+                else if (youtubeMatch) {
+                    const videoId = youtubeMatch[1];
+                    requestData = {
+                        'video_id': videoId
                     };
                 }
                 else {
-                    const trackId = match[1];
                     requestData = {
-                        'track_id': trackId
+                        'name': spotifyUrl
                     };
                 }
                 const url = 'https://spotifydownloader-killua.onrender.com:443/download';

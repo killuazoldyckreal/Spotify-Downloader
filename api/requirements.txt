@@ -9,3 +9,4 @@ Flask-Limiter
 Flask-WTF
 python-dotenv
 gunicorn
+beautifulsoup4

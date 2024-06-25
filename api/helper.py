@@ -9,6 +9,8 @@ import dropbox
 from dotenv import load_dotenv
 import logging
 import sys, traceback
+import time, re
+from bs4 import BeautifulSoup
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO, 
@@ -20,6 +22,91 @@ api_key = os.getenv("API_KEY")
 ACCESS_KEY = os.getenv("DROPBOX_KEY")
 ACCESS_SECRET = os.getenv("DROPBOX_SECRET")
 ACCESS_TOKEN = os.getenv("DROPBOX_RTOKEN")
+
+def getid(url):
+    """
+    Extract the video ID from the YouTube URL.
+    """
+    youtube_regex = (
+        r'(https?://)?(www\.)?'
+        '(youtube\.com/watch\?v=|youtu\.be/)'
+        '([a-zA-Z0-9_-]{11})'
+    )
+    match = re.match(youtube_regex, url)
+    if match:
+        return match.group(4)
+    else:
+        return None
+
+class RequestHandler:
+    def __init__(self, base_url):
+        self.url = base_url
+
+    def post(self, endpoint, reqdata, query, headers=None):
+        url = self.url+endpoint
+        if "yt" in query:
+            response = requests.post(url, headers=headers, json=reqdata)
+        else:
+            response = requests.post(url, headers=headers, data=reqdata)
+        if response.status_code==200:
+            try:
+                if query=="yta":
+                    data = response.json()
+                    title = data['title']
+                    duration = data["lengthSeconds"]
+                    datadict = {"title": title, "duration": duration}
+                    for task in data["tasks"]:
+                        quality = task["bitrate"]
+                        audio_size = task["filesize"]
+                        audio_hash = task["hash"]
+                        datadict[quality] = {"size": audio_size, "audio_hash": audio_hash}
+                    return datadict
+                elif query=="yt2":
+                    data = response.json()
+                    return data["taskId"]
+                elif query=="yt3":
+                    data = response.json()
+                    while data["status"]!="finished":
+                        time.sleep(2.5)
+                        response = requests.post(url, headers=headers, data=reqdata)
+                        data = response.json()
+                    return data["download"]
+            except:
+                logging.error(traceback.format_exc())
+        return None
+
+class YoutubeDownloader:
+    def __init__(self, url):
+        self.url = url
+        self.handler = RequestHandler("https://master-cdn.dl-api.com/api/json")
+        self.headers = {
+            "Origin": "https://yt.yt1sapi.com",
+            "Referer": "https://yt.yt1sapi.com/"
+        }
+        
+    def downloadAudio(self, output_path=".", reqQuality:int=192):
+        try:
+            units = {"KB": 1, "MB": 1024, "GB": 1024**2}
+            reqdata = {"ftype":"mp3","url":self.url}
+            response = self.handler.post("/", reqdata, "yta", self.headers)
+            if response:
+                title = response["title"]
+                filesize = response[reqQuality]["size"]
+                size, unit = filesize.split()
+                size = float(size)
+                size_in_mb = size * units[unit]
+                if size_in_mb < 50:
+                    reqdata2 = {"hash":response[reqQuality]["audio_hash"]}
+                    taskID = self.handler.post("/", reqdata2, "yt2", self.headers)
+                    if taskID:
+                        reqdata3 = {"taskId":taskID}
+                        download_url = self.handler.post("/task", reqdata3, "yt3", self.headers)
+                        response = requests.get(downloadurl)
+                        audiobytes = response.content
+                        return audiobytes, title
+        except:
+            logging.error(traceback.format_exc())
+        return None, None
 
 class ValidationError(ValueError):
     """
@@ -176,6 +263,7 @@ def upload_file(f, dropbox_path):
             oauth2_refresh_token=ACCESS_TOKEN,
         )
         response = dbx.files_upload(f.read(), dropbox_path, autorename=True)
+        time.sleep(1.0)
         shared_link_metadata = dbx.sharing_create_shared_link(
             path=response.path_display
         )
@@ -184,6 +272,8 @@ def upload_file(f, dropbox_path):
             "https://www.dropbox.com", "https://dl.dropboxusercontent.com"
         )
         return direct_link, direct_link2
+    except dropbox.exceptions.ApiError:
+        pass
     except Exception as e:
         logging.error(traceback.format_exc())
 

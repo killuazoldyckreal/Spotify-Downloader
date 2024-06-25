@@ -130,6 +130,19 @@ def downloading():
                         audiobytes, filename = get_mp3(url)
                     except:
                         return jsonify({'success': False, 'error': 'Song not found or invalid URL'}), 400
+                elif 'video_id' in data:
+                    video_id = data.get('video_id')
+                    try:
+                        url = "https://www.youtube.com/watch?v="+video_id
+                        ythandler = YoutubeDownloader(url)
+                        audiobytes, track_name = ythandler.downloadAudio()
+                        try:
+                            results = sp.search(q=track_name, type='track', limit=1)['tracks']['items'][0]
+                        except:
+                            results = None
+                        filename = track_name+".mp3"
+                    except:
+                        return jsonify({'success': False, 'error': 'Song not found or invalid URL'}), 400
                 else:
                     track_name = data.get('name')
                     try:
@@ -140,24 +153,25 @@ def downloading():
                     audiobytes, filename = get_mp3(url)
                 if not audiobytes:
                     return jsonify({'success': False, 'error': 'Song not found'}), 400
-                track_name = results['name']
-                album_name = results['album']['name']
-                release_date = results['album']['release_date']
-                artists = [artist['name'] for artist in results['artists']]
-                album_artists = [artist['name'] for artist in results['album']['artists']]
-                genres = sp.artist(results['artists'][0]['id'])['genres']
-                cover_art_url = results['album']['images'][0]['url']
-                mdata = { 
-                    'track_name': track_name,
-                    'album_name': album_name,
-                    'release_date': release_date,
-                    'artists': artists,
-                    'album_artists': album_artists,
-                    'genres': genres,
-                    'cover_art_url': cover_art_url
-                }
                 filelike = BytesIO(audiobytes)
-                merged_file = add_mdata(filelike, mdata)
+                if results:
+                    track_name = results['name']
+                    album_name = results['album']['name']
+                    release_date = results['album']['release_date']
+                    artists = [artist['name'] for artist in results['artists']]
+                    album_artists = [artist['name'] for artist in results['album']['artists']]
+                    genres = sp.artist(results['artists'][0]['id'])['genres']
+                    cover_art_url = results['album']['images'][0]['url']
+                    mdata = { 
+                        'track_name': track_name,
+                        'album_name': album_name,
+                        'release_date': release_date,
+                        'artists': artists,
+                        'album_artists': album_artists,
+                        'genres': genres,
+                        'cover_art_url': cover_art_url
+                    }
+                    merged_file = add_mdata(filelike, mdata)
                 token = secrets.token_hex(12)
                 try:
                     dropbox_path = f"/songs/{filename}"
