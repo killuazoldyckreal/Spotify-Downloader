@@ -26,6 +26,7 @@ app = Flask(__name__)
 env_config = os.getenv("PROD_APP_SETTINGS", "config.DevelopmentConfig")
 app.config.from_object(env_config)
 secret_key = os.urandom(24)
+app.config['TIMEOUT'] = 300
 app.config['SECRET_KEY'] = secret_key
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
