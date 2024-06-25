@@ -38,6 +38,23 @@ def getid(url):
     else:
         return None
 
+def convert_to_bytes(size_str):
+    size_str = size_str.strip()
+    if size_str.lower().endswith('mb'):
+        return float(size_str[:-2].strip()) * 1024 * 1024
+    elif size_str.lower().endswith('kb'):
+        return float(size_str[:-2].strip()) * 1024
+    elif size_str.lower().endswith('bytes'):
+        return float(size_str[:-5].strip())
+    else:
+        raise ValueError("Unknown file size format")
+
+def is_file_size_less_than_50mb(size_str):
+    size_in_bytes = convert_to_bytes(size_str)
+    size_in_mb = size_in_bytes / (1024 * 1024)
+    return size_in_mb < 50
+
+
 class RequestHandler:
     def __init__(self, base_url):
         self.url = base_url
@@ -92,16 +109,13 @@ class YoutubeDownloader:
             if response:
                 title = response["title"]
                 filesize = response[reqQuality]["size"]
-                size, unit = filesize.split()
-                size = float(size)
-                size_in_mb = size * units[unit]
-                if size_in_mb < 50:
+                if is_file_size_less_than_50mb(filesize):
                     reqdata2 = {"hash":response[reqQuality]["audio_hash"]}
                     taskID = self.handler.post("/", reqdata2, "yt2", self.headers)
                     if taskID:
                         reqdata3 = {"taskId":taskID}
                         download_url = self.handler.post("/task", reqdata3, "yt3", self.headers)
-                        response = requests.get(downloadurl)
+                        response = requests.get(download_url)
                         audiobytes = response.content
                         return audiobytes, title
         except:
